@@ -3,6 +3,21 @@ VICE_SRC_DIR := $(HOME)/vice-src
 VICE_BUILD_DIR := $(VICE_SRC_DIR)/vice-$(VICE_VERSION)
 VICE_INSTALL_DIR := $(HOME)/vice-$(VICE_VERSION)
 
+# OS support dependencies (audio, video, system libraries)
+OS_DEPS = \
+	pulseaudio alsa-tools
+
+# Build dependencies (compilers, tools, build system)
+BUILD_DEPS = \
+	git build-essential autoconf automake byacc flex xa65 gawk texinfo \
+	dos2unix libpulse-dev libasound2-dev libcurl4-openssl-dev \ 
+
+# VICE-specific dependencies (emulator features, codecs, SDL, etc.)
+VICE_DEPS = \
+	libpcap-dev libmpg123-dev libvorbis-dev libflac-dev \
+	libpng-dev libjpeg-dev portaudio19-dev \
+	libsdl2-image-dev libsdl2-dev libsdl2-2.0-0
+
 .PHONY: all deps vice_deps download extract autogen configure build install add_config_txt_changes samba_setup autologin_pi autostart_x64sc clean tools setup_vice_config
 
 all: deps vice_deps download extract autogen configure build install add_config_txt_changes samba_setup autologin_pi autostart_x64sc tools setup_vice_config
@@ -10,15 +25,7 @@ all: deps vice_deps download extract autogen configure build install add_config_
 deps:
 	sudo apt update -y
 	sudo apt upgrade -y
-	sudo apt-get install -y lsb-release git dialog wget gcc g++ build-essential unzip xmlstarlet \
-		python3-pyudev ca-certificates libasound2-dev libudev-dev libibus-1.0-dev libdbus-1-dev \
-		fcitx-libs-dev libsndio-dev libx11-dev libxcursor-dev libxext-dev libxi-dev libxinerama-dev \
-		libxkbcommon-dev libxrandr-dev libxss-dev libxt-dev libxv-dev libxxf86vm-dev libgl1-mesa-dev \
-		libegl1-mesa-dev libgles2-mesa-dev libgl1-mesa-dev libglu1-mesa-dev libdrm-dev libgbm-dev \
-		devscripts debhelper dh-autoreconf libraspberrypi-dev libpulse-dev bison flex xa65 \
-		libcurl4-openssl-dev pulseaudio libmpg123-dev libpng-dev zlib1g-dev  libvorbis-dev libflac-dev \
-		libpcap-dev subversion libjpeg-dev portaudio19-dev texinfo dos2unix libsdl2-image-dev \
-		libsdl2-dev libsdl2-2.0-0 autoconf automake libtool pkg-config libsdl2-dev raspi-config
+	sudo apt-get install -y $(OS_DEPS) $(BUILD_DEPS) $(VICE_DEPS)
 
 download:
 	mkdir -p $(VICE_SRC_DIR)
@@ -32,7 +39,7 @@ autogen:
 
 configure:
 	cd $(VICE_BUILD_DIR) && ./configure --prefix=$(VICE_INSTALL_DIR) --enable-sdl2ui --without-oss --enable-ethernet \
-		--disable-catweasel  --with-pulse --enable-x64 --disable-html-docs --disable-pdf-docs
+		--disable-catweasel  --with-pulse --with-resid --enable-x64 --disable-html-docs --disable-pdf-docs
 
 build:
 	cd $(VICE_BUILD_DIR) && make -j $$(nproc)
@@ -85,5 +92,5 @@ setup_vice_config:
 	@echo "Default VICE config (sdl-vicerc) copied to $$HOME/.config/vice/"
 
 clean:
-	rm -rf $(VICE_SRC_DIR) 
+	rm -rf $(VICE_SRC_DIR)
 
