@@ -110,6 +110,10 @@ This will:
 - `make autostart_x64sc`  
   Add a command to your `~/.bash_profile` so that `x64sc` launches automatically when you log in on the console (not via SSH).
 
+- `make setup_vice_config`  
+  Copy the provided `sdl-vicerc` file into `~/.config/vice/` to set up default VICE settings for your user.  
+  This ensures VICE starts with your preferred configuration out of the box.
+
 - `make tools`  
   Install useful tools for working on the Pi, starting with Midnight Commander (`mc`), a text-based file manager.  
   Run `mc` in the terminal to launch it.
@@ -132,6 +136,8 @@ make
 make samba_setup
 make autostart_x64sc
 make add_config_txt_changes
+make setup_vice_config
+make tools
 ```
 
 Then reboot your Pi. VICE will auto-launch on console login, and you can access your shared folders from other computers.
