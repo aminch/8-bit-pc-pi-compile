@@ -30,7 +30,6 @@ deps:
 autologin_pi:
 	sudo raspi-config nonint do_boot_behaviour B2
 	@echo "Console autologin enabled via raspi-config."
-	@bash -c 'read -n 1 -s -r -p "Press any key to reboot and apply autologin..."; echo; sudo reboot'
 
 download:
 	mkdir -p $(VICE_SRC_DIR)
@@ -94,6 +93,7 @@ setup_vice_config:
 	mkdir -p $$HOME/.config/vice
 	cp sdl-vicerc $$HOME/.config/vice/
 	@echo "Default VICE config (sdl-vicerc) copied to $$HOME/.config/vice/"
+	@bash -c 'read -n 1 -s -r -p "Press any key to reboot to finalise set up..."; echo; sudo reboot'
 
 clean:
 	rm -rf $(VICE_SRC_DIR)
