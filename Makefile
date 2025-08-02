@@ -3,9 +3,9 @@ VICE_SRC_DIR := $(HOME)/vice-src
 VICE_BUILD_DIR := $(VICE_SRC_DIR)/vice-$(VICE_VERSION)
 VICE_INSTALL_DIR := $(HOME)/vice-$(VICE_VERSION)
 
-.PHONY: all deps vice_deps download extract autogen configure build install clean samba_setup
+.PHONY: all deps vice_deps download extract autogen configure build install samba_setup autologin_pi autostart_x64sc clean
 
-all: deps vice_deps download extract autogen configure build install samba_setup
+all: deps vice_deps download extract autogen configure build install samba_setup autologin_pi autostart_x64sc
 
 deps:
 	sudo apt update -y
@@ -48,9 +48,11 @@ samba_setup:
     sudo systemctl restart smbd
     @echo "Samba share 'VICE' is set up at $$HOME/vice-share. Access it from another computer using: smb://<your-pi-ip-address>/VICE"
 
-.PHONY: all deps vice_deps download extract autogen configure build install clean samba_setup autostart_x64sc
-
-# ...existing code...
+autologin_pi:
+    @echo "Setting up auto-login for user '$$USER'..."
+    sudo sed -i '/^#*autologin-user=/c\autologin-user=$$USER' /etc/lightdm/lightdm.conf
+    sudo sed -i '/^#*autologin-user-timeout=/c\autologin-user-timeout=0' /etc/lightdm/lightdm.conf
+    @echo "Auto-login enabled for user '$$USER'. Reboot to take effect."
 
 autostart_x64sc:
     @echo "[Unit]" | sudo tee /etc/systemd/system/x64sc.service
@@ -69,8 +71,6 @@ autostart_x64sc:
     sudo systemctl daemon-reload
     sudo systemctl enable x64sc.service
     @echo "x64sc will now launch automatically at boot. You can start it immediately with: sudo systemctl start x64sc.service"
-
-# ...existing code...
 
 clean:
 	rm -rf $(VICE_SRC_DIR) $(VICE_INSTALL_DIR) $(SDL2_SRC_DIR) $(SDL2_INSTALL_DIR)
