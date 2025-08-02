@@ -30,8 +30,7 @@ deps:
 autologin_pi:
 	sudo raspi-config nonint do_boot_behaviour B2
 	@echo "Console autologin enabled via raspi-config."
-	@read -n 1 -s -r -p "Press any key to reboot and apply autologin..."; echo
-	sudo reboot
+	@bash -c 'read -n 1 -s -r -p "Press any key to reboot and apply autologin..."; echo; sudo reboot'
 
 download:
 	mkdir -p $(VICE_SRC_DIR)
