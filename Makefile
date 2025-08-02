@@ -66,7 +66,8 @@ samba_setup:
 	echo "[VICE]\n   path = $$HOME/vice-share\n   browseable = yes\n   read only = no\n   guest ok = yes\n   create mask = 0775\n   directory mask = 0775" | sudo tee -a /etc/samba/smb.conf
 	chmod 775 ~/vice-share ~/vice-share/disks ~/vice-share/roms
 	sudo systemctl restart smbd
-	@echo "Samba share 'VICE' is set up at $$HOME/vice-share with 'disks' and 'roms' subfolders. Access it from another computer using: smb://<your-pi-ip-address>/VICE"
+	@ip_addr=$$(hostname -I | awk '{print $$1}'); \
+	echo "Samba share 'VICE' is set up at $$HOME/vice-share with 'disks' and 'roms' subfolders. Access it from another computer using: smb://$${ip_addr}/VICE"
 
 autologin_pi:
 	@echo "Setting up auto-login for user '$$USER'..."
