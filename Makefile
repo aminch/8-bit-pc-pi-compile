@@ -18,14 +18,20 @@ VICE_DEPS = \
 	libpng-dev libjpeg-dev portaudio19-dev \
 	libsdl2-image-dev libsdl2-dev libsdl2-2.0-0
 
-.PHONY: all deps vice_deps download extract autogen configure build install add_config_txt_changes samba_setup autologin_pi autostart_x64sc clean tools setup_vice_config
+.PHONY: all deps download extract autogen configure build install add_config_txt_changes samba_setup autologin_pi autostart_x64sc clean tools setup_vice_config
 
-all: deps vice_deps download extract autogen configure build install add_config_txt_changes samba_setup autologin_pi autostart_x64sc tools setup_vice_config
+all: deps autologin_pi download extract autogen configure build install add_config_txt_changes samba_setup autostart_x64sc tools setup_vice_config
 
 deps:
 	sudo apt update -y
 	sudo apt upgrade -y
 	sudo apt-get install -y $(OS_DEPS) $(BUILD_DEPS) $(VICE_DEPS)
+
+autologin_pi:
+	sudo raspi-config nonint do_boot_behaviour B2
+	@echo "Console autologin enabled via raspi-config."
+	@read -n 1 -s -r -p "Press any key to reboot and apply autologin..."; echo
+	sudo reboot
 
 download:
 	mkdir -p $(VICE_SRC_DIR)
@@ -72,10 +78,6 @@ samba_setup:
 	sudo systemctl restart smbd
 	@ip_addr=$$(hostname -I | awk '{print $$1}'); \
 	echo "Samba share 'VICE' is set up at $$HOME/vice-share with 'disks' and 'roms' subfolders. Access it from another computer using: smb://pi@$${ip_addr}/VICE (login as user 'pi')"
-
-autologin_pi:
-	sudo raspi-config nonint do_boot_behaviour B2
-	@echo "Console autologin enabled via raspi-config. Reboot to take effect."
 
 autostart_x64sc:
 	@echo "Adding x64sc to ~/.bash_profile for auto-launch on login..."
