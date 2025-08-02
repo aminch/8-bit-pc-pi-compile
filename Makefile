@@ -56,21 +56,21 @@ autologin_pi:
 
 autostart_x64sc:
 	@echo "[Unit]" | sudo tee /etc/systemd/system/x64sc.service
-	@echo "Description=VICE x64sc Commodore 64 Emulator" | sudo tee -a /etc/systemd/system/x64sc.service
+	@echo "Description=VICE x64sc Commodore 64 Emulator (Console)" | sudo tee -a /etc/systemd/system/x64sc.service
 	@echo "After=network.target" | sudo tee -a /etc/systemd/system/x64sc.service
 	@echo "" | sudo tee -a /etc/systemd/system/x64sc.service
 	@echo "[Service]" | sudo tee -a /etc/systemd/system/x64sc.service
 	@echo "Type=simple" | sudo tee -a /etc/systemd/system/x64sc.service
 	@echo "User=$$USER" | sudo tee -a /etc/systemd/system/x64sc.service
-	@echo "Environment=DISPLAY=:0" | sudo tee -a /etc/systemd/system/x64sc.service
+	@echo "Environment=SDL_VIDEODRIVER=fbcon" | sudo tee -a /etc/systemd/system/x64sc.service
 	@echo "ExecStart=$(VICE_INSTALL_DIR)/bin/x64sc" | sudo tee -a /etc/systemd/system/x64sc.service
 	@echo "Restart=on-failure" | sudo tee -a /etc/systemd/system/x64sc.service
 	@echo "" | sudo tee -a /etc/systemd/system/x64sc.service
 	@echo "[Install]" | sudo tee -a /etc/systemd/system/x64sc.service
-	@echo "WantedBy=graphical.target" | sudo tee -a /etc/systemd/system/x64sc.service
+	@echo "WantedBy=multi-user.target" | sudo tee -a /etc/systemd/system/x64sc.service
 	sudo systemctl daemon-reload
 	sudo systemctl enable x64sc.service
-	@echo "x64sc will now launch automatically at boot. You can start it immediately with: sudo systemctl start x64sc.service"
+	@echo "x64sc will now launch automatically at boot in console mode. You can start it immediately with: sudo systemctl start x64sc.service"
 
 clean:
 	rm -rf $(VICE_SRC_DIR) $(VICE_INSTALL_DIR) $(SDL2_SRC_DIR) $(SDL2_INSTALL_DIR)
