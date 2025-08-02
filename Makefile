@@ -16,8 +16,9 @@ deps:
 		libxkbcommon-dev libxrandr-dev libxss-dev libxt-dev libxv-dev libxxf86vm-dev libgl1-mesa-dev \
 		libegl1-mesa-dev libgles2-mesa-dev libgl1-mesa-dev libglu1-mesa-dev libdrm-dev libgbm-dev \
 		devscripts debhelper dh-autoreconf libraspberrypi-dev libpulse-dev bison flex xa65 \
-		libcurl4-openssl-dev pulseaudio \
-		autoconf automake libtool pkg-config libsdl2-dev
+		libcurl4-openssl-dev pulseaudio libmpg123-dev libpng-dev zlib1g-dev  libvorbis-dev libflac-dev \
+		libpcap-dev subversion libjpeg-dev portaudio19-dev texinfo dos2unix libsdl2-image-dev \
+		libsdl2-dev libsdl2-2.0-0 autoconf automake libtool pkg-config libsdl2-dev
 
 download:
 	mkdir -p $(VICE_SRC_DIR)
