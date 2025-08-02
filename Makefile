@@ -55,11 +55,11 @@ autologin_pi:
 	@echo "Auto-login enabled for user '$$USER'. Reboot to take effect."
 
 autostart_x64sc:
-    @echo "Adding x64sc to ~/.bash_profile for auto-launch on login..."
-    echo 'if [ -z "$$SSH_CONNECTION" ]; then' >> $$HOME/.bash_profile
-    echo '  $(VICE_INSTALL_DIR)/bin/x64sc' >> $$HOME/.bash_profile
-    echo 'fi' >> $$HOME/.bash_profile
-    @echo "x64sc will now launch automatically when you log in on the console."
+	@echo "Adding x64sc to ~/.bash_profile for auto-launch on login..."
+	echo 'if [ -z "$$SSH_CONNECTION" ]; then' >> $$HOME/.bash_profile
+	echo '  $(VICE_INSTALL_DIR)/bin/x64sc' >> $$HOME/.bash_profile
+	echo 'fi' >> $$HOME/.bash_profile
+	@echo "x64sc will now launch automatically when you log in on the console."
 
 clean:
 	rm -rf $(VICE_SRC_DIR) $(VICE_INSTALL_DIR) $(SDL2_SRC_DIR) $(SDL2_INSTALL_DIR)
