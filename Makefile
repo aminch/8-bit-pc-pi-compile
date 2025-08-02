@@ -10,7 +10,7 @@ OS_DEPS = \
 # Build dependencies (compilers, tools, build system)
 BUILD_DEPS = \
 	git build-essential autoconf automake byacc flex xa65 gawk texinfo \
-	dos2unix libpulse-dev libasound2-dev libcurl4-openssl-dev \ 
+	dos2unix libpulse-dev libasound2-dev libcurl4-openssl-dev
 
 # VICE-specific dependencies (emulator features, codecs, SDL, etc.)
 VICE_DEPS = \
