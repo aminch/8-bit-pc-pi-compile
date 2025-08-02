@@ -74,8 +74,8 @@ samba_setup:
 	echo "Samba share 'VICE' is set up at $$HOME/vice-share with 'disks' and 'roms' subfolders. Access it from another computer using: smb://pi@$${ip_addr}/VICE (login as user 'pi')"
 
 autologin_pi:
-    sudo raspi-config nonint do_boot_behaviour B2
-    @echo "Console autologin enabled via raspi-config. Reboot to take effect."
+	sudo raspi-config nonint do_boot_behaviour B2
+	@echo "Console autologin enabled via raspi-config. Reboot to take effect."
 
 autostart_x64sc:
 	@echo "Adding x64sc to ~/.bash_profile for auto-launch on login..."
