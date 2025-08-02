@@ -63,11 +63,15 @@ samba_setup:
 	sudo apt-get update
 	sudo apt-get install -y samba
 	mkdir -p ~/vice-share/disks ~/vice-share/roms
-	echo "[VICE]\n   path = $$HOME/vice-share\n   browseable = yes\n   read only = no\n   guest ok = yes\n   create mask = 0775\n   directory mask = 0775" | sudo tee -a /etc/samba/smb.conf
+	# Remove any existing [VICE] section
+	sudo sed -i '/^\[VICE\]/,/^$$/d' /etc/samba/smb.conf
+	# Add the new [VICE] section at the end
+	echo "[VICE]\n   path = $$HOME/vice-share\n   browseable = yes\n   read only = no\n   guest ok = no\n   create mask = 0775\n   directory mask = 0775" | sudo tee -a /etc/samba/smb.conf
 	chmod 775 ~/vice-share ~/vice-share/disks ~/vice-share/roms
+	sudo smbpasswd -a pi
 	sudo systemctl restart smbd
 	@ip_addr=$$(hostname -I | awk '{print $$1}'); \
-	echo "Samba share 'VICE' is set up at $$HOME/vice-share with 'disks' and 'roms' subfolders. Access it from another computer using: smb://$${ip_addr}/VICE"
+	echo "Samba share 'VICE' is set up at $$HOME/vice-share with 'disks' and 'roms' subfolders. Access it from another computer using: smb://pi@$${ip_addr}/VICE (login as user 'pi')"
 
 autologin_pi:
 	@echo "Setting up auto-login for user '$$USER'..."
