@@ -23,7 +23,7 @@ deps:
 		fcitx-libs-dev libsndio-dev libx11-dev libxcursor-dev libxext-dev libxi-dev libxinerama-dev \
 		libxkbcommon-dev libxrandr-dev libxss-dev libxt-dev libxv-dev libxxf86vm-dev libgl1-mesa-dev \
 		libegl1-mesa-dev libgles2-mesa-dev libgl1-mesa-dev libglu1-mesa-dev libdrm-dev libgbm-dev \
-		devscripts debhelper dh-autoreconf libraspberrypi-dev libpulse-dev \
+		devscripts debhelper dh-autoreconf libraspberrypi-dev libpulse-dev bison \
 		autoconf automake libtool pkg-config libsdl2-dev
 
 download:
@@ -38,7 +38,7 @@ autogen:
 
 configure:
 	cd $(VICE_BUILD_DIR) && ./configure --prefix=$(VICE_INSTALL_DIR) --enable-sdl2ui --without-oss --enable-ethernet \
-		--disable-catweasel --without-pulse --enable-x64 --disable-pdf-docs --with-fastsid
+		--disable-catweasel --without-pulse --enable-x64 --disable-html-docs --disable-pdf-docs
 
 build:
 	cd $(VICE_BUILD_DIR) && make -j $$(nproc)
