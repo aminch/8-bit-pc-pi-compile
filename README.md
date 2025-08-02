@@ -1,5 +1,7 @@
 # VICE Pi Compile Makefile
 
+This make file is designed to be used from a Raspberry Pi OS Lite (64-bit) clean installation and install Vice 3.9 and set it to auto start on boot. It's been designed to work best with a Pi400 or Pi500.
+
 ## Getting Started: Flashing Raspberry Pi OS Lite
 
 1. **Download and Install Raspberry Pi Imager**  
