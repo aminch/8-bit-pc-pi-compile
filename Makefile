@@ -3,9 +3,9 @@ VICE_SRC_DIR := $(HOME)/vice-src
 VICE_BUILD_DIR := $(VICE_SRC_DIR)/vice-$(VICE_VERSION)
 VICE_INSTALL_DIR := $(HOME)/vice-$(VICE_VERSION)
 
-.PHONY: all deps vice_deps download extract autogen configure build install samba_setup autologin_pi autostart_x64sc clean
+.PHONY: all deps vice_deps download extract autogen configure build install add_config_txt_changes samba_setup autologin_pi autostart_x64sc clean
 
-all: deps vice_deps download extract autogen configure build install samba_setup autologin_pi autostart_x64sc
+all: deps vice_deps download extract autogen configure build install add_config_txt_changes samba_setup autologin_pi autostart_x64sc
 
 deps:
 	sudo apt update -y
@@ -38,6 +38,18 @@ build:
 
 install:
 	cd $(VICE_BUILD_DIR) && make install
+
+add_config_txt_changes:
+	@echo "Disabling Raspberry Pi rainbow splash screen in /boot/config.txt or /boot/firmware/config.txt..."
+	@if [ -f /boot/firmware/config.txt ]; then \
+		sudo sed -i '/^disable_splash=/d' /boot/firmware/config.txt; \
+		echo "disable_splash=1" | sudo tee -a /boot/firmware/config.txt; \
+		echo "Rainbow splash screen will be hidden on next boot (set in /boot/firmware/config.txt)."; \
+	else \
+		sudo sed -i '/^disable_splash=/d' /boot/config.txt; \
+		echo "disable_splash=1" | sudo tee -a /boot/config.txt; \
+		echo "Rainbow splash screen will be hidden on next boot (set in /boot/config.txt)."; \
+	fi
 
 samba_setup:
 	sudo apt-get update
