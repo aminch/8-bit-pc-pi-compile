@@ -88,7 +88,7 @@ autostart_x64sc:
 
 tools:
 	sudo apt-get update
-	sudo apt-get install mc
+	sudo apt-get install -y mc
 	@echo "Midnight Commander (mc) and other useful tools have been installed."
 
 setup_vice_config:
