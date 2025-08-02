@@ -18,7 +18,7 @@ deps:
 		devscripts debhelper dh-autoreconf libraspberrypi-dev libpulse-dev bison flex xa65 \
 		libcurl4-openssl-dev pulseaudio libmpg123-dev libpng-dev zlib1g-dev  libvorbis-dev libflac-dev \
 		libpcap-dev subversion libjpeg-dev portaudio19-dev texinfo dos2unix libsdl2-image-dev \
-		libsdl2-dev libsdl2-2.0-0 autoconf automake libtool pkg-config libsdl2-dev
+		libsdl2-dev libsdl2-2.0-0 autoconf automake libtool pkg-config libsdl2-dev raspi-config
 
 download:
 	mkdir -p $(VICE_SRC_DIR)
