@@ -40,37 +40,37 @@ install:
 	cd $(VICE_BUILD_DIR) && make install
 
 samba_setup:
-    sudo apt-get update
-    sudo apt-get install -y samba
-    mkdir -p ~/vice-share
-    echo "[VICE]\n   path = $$HOME/vice-share\n   browseable = yes\n   read only = no\n   guest ok = yes\n   create mask = 0775\n   directory mask = 0775" | sudo tee -a /etc/samba/smb.conf
-    chmod 775 ~/vice-share
-    sudo systemctl restart smbd
-    @echo "Samba share 'VICE' is set up at $$HOME/vice-share. Access it from another computer using: smb://<your-pi-ip-address>/VICE"
+	sudo apt-get update
+	sudo apt-get install -y samba
+	mkdir -p ~/vice-share
+	echo "[VICE]\n   path = $$HOME/vice-share\n   browseable = yes\n   read only = no\n   guest ok = yes\n   create mask = 0775\n   directory mask = 0775" | sudo tee -a /etc/samba/smb.conf
+	chmod 775 ~/vice-share
+	sudo systemctl restart smbd
+	@echo "Samba share 'VICE' is set up at $$HOME/vice-share. Access it from another computer using: smb://<your-pi-ip-address>/VICE"
 
 autologin_pi:
-    @echo "Setting up auto-login for user '$$USER'..."
-    sudo sed -i '/^#*autologin-user=/c\autologin-user=$$USER' /etc/lightdm/lightdm.conf
-    sudo sed -i '/^#*autologin-user-timeout=/c\autologin-user-timeout=0' /etc/lightdm/lightdm.conf
-    @echo "Auto-login enabled for user '$$USER'. Reboot to take effect."
+	@echo "Setting up auto-login for user '$$USER'..."
+	sudo sed -i '/^#*autologin-user=/c\autologin-user=$$USER' /etc/lightdm/lightdm.conf
+	sudo sed -i '/^#*autologin-user-timeout=/c\autologin-user-timeout=0' /etc/lightdm/lightdm.conf
+	@echo "Auto-login enabled for user '$$USER'. Reboot to take effect."
 
 autostart_x64sc:
-    @echo "[Unit]" | sudo tee /etc/systemd/system/x64sc.service
-    @echo "Description=VICE x64sc Commodore 64 Emulator" | sudo tee -a /etc/systemd/system/x64sc.service
-    @echo "After=network.target" | sudo tee -a /etc/systemd/system/x64sc.service
-    @echo "" | sudo tee -a /etc/systemd/system/x64sc.service
-    @echo "[Service]" | sudo tee -a /etc/systemd/system/x64sc.service
-    @echo "Type=simple" | sudo tee -a /etc/systemd/system/x64sc.service
-    @echo "User=$$USER" | sudo tee -a /etc/systemd/system/x64sc.service
-    @echo "Environment=DISPLAY=:0" | sudo tee -a /etc/systemd/system/x64sc.service
-    @echo "ExecStart=$(VICE_INSTALL_DIR)/bin/x64sc" | sudo tee -a /etc/systemd/system/x64sc.service
-    @echo "Restart=on-failure" | sudo tee -a /etc/systemd/system/x64sc.service
-    @echo "" | sudo tee -a /etc/systemd/system/x64sc.service
-    @echo "[Install]" | sudo tee -a /etc/systemd/system/x64sc.service
-    @echo "WantedBy=graphical.target" | sudo tee -a /etc/systemd/system/x64sc.service
-    sudo systemctl daemon-reload
-    sudo systemctl enable x64sc.service
-    @echo "x64sc will now launch automatically at boot. You can start it immediately with: sudo systemctl start x64sc.service"
+	@echo "[Unit]" | sudo tee /etc/systemd/system/x64sc.service
+	@echo "Description=VICE x64sc Commodore 64 Emulator" | sudo tee -a /etc/systemd/system/x64sc.service
+	@echo "After=network.target" | sudo tee -a /etc/systemd/system/x64sc.service
+	@echo "" | sudo tee -a /etc/systemd/system/x64sc.service
+	@echo "[Service]" | sudo tee -a /etc/systemd/system/x64sc.service
+	@echo "Type=simple" | sudo tee -a /etc/systemd/system/x64sc.service
+	@echo "User=$$USER" | sudo tee -a /etc/systemd/system/x64sc.service
+	@echo "Environment=DISPLAY=:0" | sudo tee -a /etc/systemd/system/x64sc.service
+	@echo "ExecStart=$(VICE_INSTALL_DIR)/bin/x64sc" | sudo tee -a /etc/systemd/system/x64sc.service
+	@echo "Restart=on-failure" | sudo tee -a /etc/systemd/system/x64sc.service
+	@echo "" | sudo tee -a /etc/systemd/system/x64sc.service
+	@echo "[Install]" | sudo tee -a /etc/systemd/system/x64sc.service
+	@echo "WantedBy=graphical.target" | sudo tee -a /etc/systemd/system/x64sc.service
+	sudo systemctl daemon-reload
+	sudo systemctl enable x64sc.service
+	@echo "x64sc will now launch automatically at boot. You can start it immediately with: sudo systemctl start x64sc.service"
 
 clean:
 	rm -rf $(VICE_SRC_DIR) $(VICE_INSTALL_DIR) $(SDL2_SRC_DIR) $(SDL2_INSTALL_DIR)
