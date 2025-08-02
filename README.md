@@ -110,6 +110,10 @@ This will:
 - `make autostart_x64sc`  
   Add a command to your `~/.bash_profile` so that `x64sc` launches automatically when you log in on the console (not via SSH).
 
+- `make tools`  
+  Install useful tools for working on the Pi, starting with Midnight Commander (`mc`), a text-based file manager.  
+  Run `mc` in the terminal to launch it.
+
 - `make clean`  
   Remove all downloaded and built files.
 

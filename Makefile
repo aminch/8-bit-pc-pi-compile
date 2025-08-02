@@ -3,9 +3,9 @@ VICE_SRC_DIR := $(HOME)/vice-src
 VICE_BUILD_DIR := $(VICE_SRC_DIR)/vice-$(VICE_VERSION)
 VICE_INSTALL_DIR := $(HOME)/vice-$(VICE_VERSION)
 
-.PHONY: all deps vice_deps download extract autogen configure build install add_config_txt_changes samba_setup autologin_pi autostart_x64sc clean
+.PHONY: all deps vice_deps download extract autogen configure build install add_config_txt_changes samba_setup autologin_pi autostart_x64sc clean tools
 
-all: deps vice_deps download extract autogen configure build install add_config_txt_changes samba_setup autologin_pi autostart_x64sc
+all: deps vice_deps download extract autogen configure build install add_config_txt_changes samba_setup autologin_pi autostart_x64sc tools
 
 deps:
 	sudo apt update -y
@@ -72,6 +72,11 @@ autostart_x64sc:
 	echo '  $(VICE_INSTALL_DIR)/bin/x64sc' >> $$HOME/.bash_profile
 	echo 'fi' >> $$HOME/.bash_profile
 	@echo "x64sc will now launch automatically when you log in on the console."
+
+tools:
+    sudo apt-get update
+    sudo apt-get install mc
+    @echo "Midnight Commander (mc) and other useful tools have been installed."
 
 clean:
 	rm -rf $(VICE_SRC_DIR) $(VICE_INSTALL_DIR) $(SDL2_SRC_DIR) $(SDL2_INSTALL_DIR)
