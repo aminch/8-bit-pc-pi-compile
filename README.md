@@ -64,7 +64,7 @@ This Makefile automates downloading, building, and installing the VICE emulator 
 Open a terminal in this directory and run:
 
 ```bash
-make
+make all
 ```
 
 This will:
@@ -72,8 +72,9 @@ This will:
 - Download and extract VICE
 - Build and install VICE
 - Set up a Samba share with subfolders for disks and roms
-- (Optionally) Enable auto-login and auto-start of VICE
-- (Optionally) Hide the rainbow splash screen
+- Enable auto-login and auto-start of VICE
+- Hide the rainbow splash screen
+- Install some usefull tools (Midnight Commander)
 
 ## Available Targets
 
@@ -130,18 +131,6 @@ This will:
 - For headless (Lite) setups, the Makefile is designed to work without a desktop environment.
 - If you want VICE to start automatically for all users or in other scenarios, consider using a systemd user service or customizing `/etc/profile`.
 - The rainbow splash screen will be hidden on next boot after running `make add_config_txt_changes`.
-
-## Example Workflow
-
-```bash
-make
-make samba_setup
-make autostart_x64sc
-make add_config_txt_changes
-make setup_vice_config
-make tools
-```
-
-Then reboot your Pi. VICE will auto-launch on console login, and you can access your shared folders from other computers.
+- To run Vice manually from the console run `~/vice-3.9/bin/x64sc` or simply power cycle the Pi400/500.
 
 ---
