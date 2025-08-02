@@ -16,7 +16,7 @@ deps:
 		libxkbcommon-dev libxrandr-dev libxss-dev libxt-dev libxv-dev libxxf86vm-dev libgl1-mesa-dev \
 		libegl1-mesa-dev libgles2-mesa-dev libgl1-mesa-dev libglu1-mesa-dev libdrm-dev libgbm-dev \
 		devscripts debhelper dh-autoreconf libraspberrypi-dev libpulse-dev bison flex xa65 \
-		libcurl4-openssl-dev pulseaudio pulseaudio-dev \
+		libcurl4-openssl-dev pulseaudio \
 		autoconf automake libtool pkg-config libsdl2-dev
 
 download:
