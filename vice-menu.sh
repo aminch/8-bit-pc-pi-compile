@@ -1,0 +1,87 @@
+#!/bin/bash
+
+# Vice install dir
+VICE_VERSION="3.9"
+VICE_INSTALL_DIR=$HOME/vice-$VICE_VERSION
+
+# Path to this scripts directory
+DIR="$(pwd -P)"
+
+get_current_bash_profile_emulator() {
+	grep "/vice-${VICE_VERSION}/bin/x" "$HOME/.bash_profile" 2>/dev/null | grep -E 'x64sc|x64' | awk -F'/' '{print $NF}'
+}
+
+#echo "[DEBUG] Current emulator in .bash_profile: $(get_current_bash_profile_emulator)"
+
+set_bash_profile_emulator() {
+	local emulator="$1"
+	# Create .bash_profile if it doesn't exist
+	[ -f "$HOME/.bash_profile" ] || touch "$HOME/.bash_profile"
+	# Remove old block
+	sed -i '/# VICE AUTOSTART START/,/# VICE AUTOSTART END/d' "$HOME/.bash_profile"
+	# Add new block
+	{
+		echo "# VICE AUTOSTART START"
+		echo 'if [ -z "$SSH_CONNECTION" ]; then'
+		echo "  $VICE_INSTALL_DIR/bin/$emulator"
+		echo "fi"
+		echo "# VICE AUTOSTART END"
+	} >> "$HOME/.bash_profile"
+}
+
+while true; do
+	CURRENT_EMU=$(get_current_bash_profile_emulator)
+	CHOICE=$(whiptail --title "VICE Pi Menu" \
+		--ok-button "Select" --cancel-button "Exit" \
+		--menu "Choose an option:" 20 60 8 \
+		"1" "Set emulator to launch (current: ${CURRENT_EMU:-none})" \
+		"2" "Launch current emulator" \
+   		""  "-----------------------------" \
+		"3" "Run Midnight Commander" \
+		"4" "Run autologin_pi" \
+		"5" "Run autostart" \
+		"6" "Start Samba" \
+		"7" "Stop Samba" 3>&1 1>&2 2>&3)
+
+	case $CHOICE in
+		1)
+			EMU=$(whiptail --title "Select Emulator" --menu "Choose emulator to launch:" 15 50 2 \
+				"x64" "C64 emulator (fast, Pi400)" \
+				"x64sc" "C64 emulator (cycle exact, Pi500)" 3>&1 1>&2 2>&3)
+			if [ -n "$EMU" ]; then
+				set_bash_profile_emulator "$EMU"
+				whiptail --msgbox "Set emulator to $EMU in ~/.bash_profile" 8 40
+			fi
+			;;
+		2)
+			EMU=$(get_current_bash_profile_emulator)
+			if [ -n "$EMU" ]; then
+				"$VICE_INSTALL_DIR/bin/$EMU"
+			else
+				whiptail --msgbox "No emulator set in ~/.bash_profile" 8 40
+			fi
+			;;
+		3)
+			mc
+			;;
+		4)
+			make -C "$DIR" autologin_pi
+			whiptail --msgbox "Auto-login setup complete." 8 40
+			;;
+		5)
+			make -C "$DIR" autostart
+			whiptail --msgbox "Autostart setup complete." 8 40
+			;;
+		6)
+			sudo systemctl start smbd
+			whiptail --msgbox "Samba started." 8 40
+			;;
+		7)
+			sudo systemctl stop smbd
+			whiptail --msgbox "Samba stopped." 8 40
+			;;
+		*)
+			break
+			;;
+	esac
+done
