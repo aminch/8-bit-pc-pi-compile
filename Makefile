@@ -89,12 +89,15 @@ endef
 
 autostart:
 	@echo "Configuring VICE autostart in ~/.bash_profile..."
+	# Ensure .bash_profile exists
+	@test -f $$HOME/.bash_profile || touch $$HOME/.bash_profile
 	# Remove any previous VICE autostart block
 	@sed -i '/# VICE AUTOSTART START/,/# VICE AUTOSTART END/d' $$HOME/.bash_profile || true
 	# Add new block based on Pi model
 	@bash -c '\
 		$(detect_pi4_family); \
 		if [ $$? -eq 0 ]; then \
+			echo "Pi4 family detected, setting x64 as launch application"; \
 			echo "# VICE AUTOSTART START" >> $$HOME/.bash_profile; \
 			echo "if [ -z \"\$$SSH_CONNECTION\" ]; then" >> $$HOME/.bash_profile; \
 			echo "  $(VICE_INSTALL_DIR)/bin/x64" >> $$HOME/.bash_profile; \
@@ -102,6 +105,7 @@ autostart:
 			echo "# VICE AUTOSTART END" >> $$HOME/.bash_profile; \
 			echo "Configured to auto-start x64 for Pi 4, Pi 400, or CM4 model."; \
 		else \
+			echo "Non-Pi4 family detected, setting x64sc as launch application."; \
 			echo "# VICE AUTOSTART START" >> $$HOME/.bash_profile; \
 			echo "if [ -z \"\$$SSH_CONNECTION\" ]; then" >> $$HOME/.bash_profile; \
 			echo "  $(VICE_INSTALL_DIR)/bin/x64sc" >> $$HOME/.bash_profile; \
