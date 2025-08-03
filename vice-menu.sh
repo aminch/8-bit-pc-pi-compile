@@ -40,7 +40,10 @@ while true; do
 		"4" "Run autologin_pi" \
 		"5" "Run autostart" \
 		"6" "Start Samba" \
-		"7" "Stop Samba" 3>&1 1>&2 2>&3)
+        "7" "Stop Samba" \
+        "8" "Run raspi-config" \
+        "9" "Reboot Raspberry Pi" \
+        "10" "Shutdown Raspberry Pi" 3>&1 1>&2 2>&3)
 
 	case $CHOICE in
 		1)
@@ -79,6 +82,19 @@ while true; do
 			sudo systemctl stop smbd
 			whiptail --msgbox "Samba stopped." 8 40
 			;;
+        8)
+            sudo raspi-config
+            ;;
+        9)
+            if whiptail --yesno "Are you sure you want to reboot the Raspberry Pi?" 8 40; then
+                sudo reboot
+            fi
+            ;;
+        10)
+            if whiptail --yesno "Are you sure you want to shutdown the Raspberry Pi?" 8 40; then
+                sudo shutdown now
+            fi
+            ;;
 		*)
 			break
 			;;
