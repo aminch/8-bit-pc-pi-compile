@@ -24,9 +24,9 @@ VICE_DEPS = \
 	libpng-dev libjpeg-dev portaudio19-dev \
 	libsdl2-image-dev libsdl2-dev libsdl2-2.0-0
 
-.PHONY: all deps download extract autogen configure build install add_config_txt_changes samba_setup autologin_pi autostart clean tools setup_vice_config install_menu
+.PHONY: all deps download extract autogen configure build install add_config_txt_changes samba_setup autologin_pi autostart clean tools setup_vice_config install_menu reboot
 
-all: deps autologin_pi download extract autogen configure build install add_config_txt_changes samba_setup autostart tools setup_vice_config install_menu
+all: deps autologin_pi download extract autogen configure build install add_config_txt_changes samba_setup autostart tools setup_vice_config install_menu reboot
 
 deps:
 	sudo apt update -y
@@ -111,6 +111,8 @@ install_menu:
 	@echo "Installing vice-menu.sh symlink to /usr/local/bin/vice-menu..."
 	sudo ln -sf $(PWD)/vice-menu.sh /usr/local/bin/vice-menu
 	@echo "You can now run 'vice-menu' from anywhere."
+
+reboot	
 	@bash -c 'read -n 1 -s -r -p "Press any key to reboot to finalise set up..."; echo; sudo reboot'
 
 clean:
