@@ -1,7 +1,7 @@
 [Version]
 ConfigVersion=3.9
 
-[C64SC]
+[C64]
 LogToFile=0
 SoundDeviceName="sdl"
 KeymapIndex=1
@@ -20,3 +20,21 @@ Mouse=1
 REUsize=16384
 REU=1
 
+[C64SC]
+LogToFile=0
+SoundDeviceName="sdl"
+KeymapIndex=1
+Window0Width=1280
+Window0Height=720
+Window0Xpos=-40
+Window0Ypos=-48
+VICIIFullscreenCustomWidth=1920
+VICIIFullscreenCustomHeight=1080
+VICIIFilter=0
+VICIIAspectMode=1
+VICIIGLFilter=1
+JoyPort1Device=3
+JoyDevice2=4
+Mouse=1
+REUsize=16384
+REU=1

@@ -78,12 +78,36 @@ samba_setup:
 	@ip_addr=$$(hostname -I | awk '{print $$1}'); \
 	echo "Samba share 'VICE' is set up at $$HOME/vice-share with 'disks' and 'roms' subfolders. Access it from another computer using: smb://pi@$${ip_addr}/VICE (login as user 'pi')"
 
+define detect_pi4_family
+model=$$(tr -d "\0" < /proc/device-tree/model); \
+if echo "$$model" | grep -Eq "Raspberry Pi 4|Raspberry Pi 400|Compute Module 4"; then \
+  return 0; \
+else \
+  return 1; \
+fi
+endef
+
 autostart_x64sc:
-	@echo "Adding x64sc to ~/.bash_profile for auto-launch on login..."
-	echo 'if [ -z "$$SSH_CONNECTION" ]; then' >> $$HOME/.bash_profile
-	echo '  $(VICE_INSTALL_DIR)/bin/x64sc' >> $$HOME/.bash_profile
-	echo 'fi' >> $$HOME/.bash_profile
-	@echo "x64sc will now launch automatically when you log in on the console."
+	@echo "Adding the VICE emulator to ~/.bash_profile for auto-launch on login..."
+	@rm -f $$HOME/.bash_profile.vice_autostart
+	@bash -c '\
+		$(detect_pi4_family); \
+		if [ $$? -eq 0 ]; then \
+			echo "if [ -z \"$$SSH_CONNECTION\" ]; then" >> $$HOME/.bash_profile.vice_autostart; \
+			echo "  $(VICE_INSTALL_DIR)/bin/x64" >> $$HOME/.bash_profile.vice_autostart; \
+			echo "fi" >> $$HOME/.bash_profile.vice_autostart; \
+			echo "Configured to auto-start x64 for Pi 4, Pi 400, or CM4 model."; \
+		else \
+			echo "if [ -z \"$$SSH_CONNECTION\" ]; then" >> $$HOME/.bash_profile.vice_autostart; \
+			echo "  $(VICE_INSTALL_DIR)/bin/x64sc" >> $$HOME/.bash_profile.vice_autostart; \
+			echo "fi" >> $$HOME/.bash_profile.vice_autostart; \
+			echo "Configured to auto-start x64sc for non-Pi 4 model."; \
+		fi; \
+	'
+	@grep -v 'vice_autostart' $$HOME/.bash_profile > $$HOME/.bash_profile.tmp || true
+	@echo 'source $$HOME/.bash_profile.vice_autostart' >> $$HOME/.bash_profile.tmp
+	@mv $$HOME/.bash_profile.tmp $$HOME/.bash_profile
+	@echo "Auto-start configuration updated in ~/.bash_profile."
 
 tools:
 	sudo apt-get update
