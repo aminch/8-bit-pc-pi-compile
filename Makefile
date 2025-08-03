@@ -2,6 +2,12 @@ VICE_VERSION := 3.9
 VICE_SRC_DIR := $(HOME)/vice-src
 VICE_BUILD_DIR := $(VICE_SRC_DIR)/vice-$(VICE_VERSION)
 VICE_INSTALL_DIR := $(HOME)/vice-$(VICE_VERSION)
+VICE_APP := x64sc
+
+# Detect Pi 4 family and override variables as needed
+ifeq ($(shell model=$$(tr -d "\0" < /proc/device-tree/model); echo $$model | grep -Eq "Raspberry Pi 4|Raspberry Pi 400|Compute Module 4" && echo yes),yes)
+VICE_APP := x64
+endif
 
 # OS support dependencies (audio, video, system libraries)
 OS_DEPS = \
@@ -78,43 +84,16 @@ samba_setup:
 	@ip_addr=$$(hostname -I | awk '{print $$1}'); \
 	echo "Samba share 'VICE' is set up at $$HOME/vice-share with 'disks' and 'roms' subfolders. Access it from another computer using: smb://pi@$${ip_addr}/VICE (login as user 'pi')"
 
-define detect_pi4_family
-model=$$(tr -d "\0" < /proc/device-tree/model); \
-if echo "$$model" | grep -Eq "Raspberry Pi 4|Raspberry Pi 400|Compute Module 4"; then \
-  exit 0; \
-else \
-  exit 1; \
-fi
-endef
-
 autostart:
 	@echo "Configuring VICE autostart in ~/.bash_profile..."
-	# Ensure .bash_profile exists
-	@test -f $$HOME/.bash_profile || touch $$HOME/.bash_profile
-	# Remove any previous VICE autostart block
-	@sed -i '/# VICE AUTOSTART START/,/# VICE AUTOSTART END/d' $$HOME/.bash_profile || true
-	# Add new block based on Pi model
-	@bash -c '\
-		$(detect_pi4_family); \
-		if [ $$? -eq 0 ]; then \
-			echo "Pi4 family detected, setting x64 as launch application"; \
-			echo "# VICE AUTOSTART START" >> $$HOME/.bash_profile; \
-			echo "if [ -z \"\$$SSH_CONNECTION\" ]; then" >> $$HOME/.bash_profile; \
-			echo "  $(VICE_INSTALL_DIR)/bin/x64" >> $$HOME/.bash_profile; \
-			echo "fi" >> $$HOME/.bash_profile; \
-			echo "# VICE AUTOSTART END" >> $$HOME/.bash_profile; \
-			echo "Configured to auto-start x64 for Pi 4, Pi 400, or CM4 model."; \
-		else \
-			echo "Non-Pi4 family detected, setting x64sc as launch application."; \
-			echo "# VICE AUTOSTART START" >> $$HOME/.bash_profile; \
-			echo "if [ -z \"\$$SSH_CONNECTION\" ]; then" >> $$HOME/.bash_profile; \
-			echo "  $(VICE_INSTALL_DIR)/bin/x64sc" >> $$HOME/.bash_profile; \
-			echo "fi" >> $$HOME/.bash_profile; \
-			echo "# VICE AUTOSTART END" >> $$HOME/.bash_profile; \
-			echo "Configured to auto-start x64sc for non-Pi 4 model."; \
-		fi; \
-	'
-	@echo "Auto-start configuration updated in ~/.bash_profile."
+	@test -f $(HOME)/.bash_profile || touch $(HOME)/.bash_profile
+	@sed -i '/# VICE AUTOSTART START/,/# VICE AUTOSTART END/d' $(HOME)/.bash_profile || true
+	@echo "# VICE AUTOSTART START" >> $(HOME)/.bash_profile
+	@echo "if [ -z \"\$$SSH_CONNECTION\" ]; then" >> $(HOME)/.bash_profile
+	@echo "  $(VICE_INSTALL_DIR)/bin/$(VICE_APP)" >> $(HOME)/.bash_profile
+	@echo "fi" >> $(HOME)/.bash_profile
+	@echo "# VICE AUTOSTART END" >> $(HOME)/.bash_profile
+	@echo "Configured to auto-start $(VICE_APP) in ~/.bash_profile."
 
 tools:
 	sudo apt-get update
