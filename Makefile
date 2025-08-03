@@ -81,9 +81,9 @@ samba_setup:
 define detect_pi4_family
 model=$$(tr -d "\0" < /proc/device-tree/model); \
 if echo "$$model" | grep -Eq "Raspberry Pi 4|Raspberry Pi 400|Compute Module 4"; then \
-  return 0; \
+  exit 0; \
 else \
-  return 1; \
+  exit 1; \
 fi
 endef
 
