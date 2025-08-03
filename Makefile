@@ -24,9 +24,9 @@ VICE_DEPS = \
 	libpng-dev libjpeg-dev portaudio19-dev \
 	libsdl2-image-dev libsdl2-dev libsdl2-2.0-0
 
-.PHONY: all deps download extract autogen configure build install add_config_txt_changes samba_setup autologin_pi autostart clean tools setup_vice_config
+.PHONY: all deps download extract autogen configure build install add_config_txt_changes samba_setup autologin_pi autostart clean tools setup_vice_config install_menu
 
-all: deps autologin_pi download extract autogen configure build install add_config_txt_changes samba_setup autostart tools setup_vice_config
+all: deps autologin_pi download extract autogen configure build install add_config_txt_changes samba_setup autostart tools setup_vice_config install_menu
 
 deps:
 	sudo apt update -y
