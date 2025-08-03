@@ -36,15 +36,14 @@ while true; do
 		--menu "Choose an option:" 24 70 12 \
 		"1" "Set emulator to launch (current: ${CURRENT_EMU:-none})" \
 		"2" "Launch current emulator" \
-		"3" "Run Midnight Commander" \
-		"4" "Run autologin_pi" \
-		"5" "Run autostart" \
-		"6" "Start Samba" \
-        "7" "Stop Samba" \
-        "8" "Update this script & Makefile" \
-        "9" "Run raspi-config" \
-        "10" "Reboot Raspberry Pi" \
-        "11" "Shutdown Raspberry Pi" 3>&1 1>&2 2>&3)
+		"3" "Launch Midnight Commander file manager" \
+		"4" "Start Samba (Windows file sharing)" \
+        "5" "Stop Samba (Windows file sharing)" \
+        "6" "Update this script & Makefile" \
+        "7" "Launch raspi-config" \
+		"8" "Set Pi to auto-login without a password" \
+        "9" "Reboot Raspberry Pi" \
+        "10" "Shutdown Raspberry Pi" 3>&1 1>&2 2>&3)
 
 	case $CHOICE in
 		1)
@@ -68,36 +67,32 @@ while true; do
 			mc
 			;;
 		4)
-			make -C "$DIR" autologin_pi
-			whiptail --msgbox "Auto-login setup complete." 8 40
-			;;
-		5)
-			make -C "$DIR" autostart
-			whiptail --msgbox "Autostart setup complete." 8 40
-			;;
-		6)
 			sudo systemctl start smbd
 			whiptail --msgbox "Samba started." 8 40
 			;;
-		7)
+		5)
 			sudo systemctl stop smbd
 			whiptail --msgbox "Samba stopped." 8 40
 			;;
-		8)
+		6)
 			whiptail --msgbox "Updating script and Makefile from git repository..." 8 40
 			git -C "$DIR" pull
 			whiptail --msgbox "Update complete. Restarting menu..." 8 40
 			exec "$0"
 			;;
-        9)
+        7)
             sudo raspi-config
             ;;
-        10)
+		8)
+			make -C "$DIR" autologin_pi
+			whiptail --msgbox "Auto-login setup complete." 8 40
+			;;
+        9)
             if whiptail --yesno "Are you sure you want to reboot the Raspberry Pi?" 8 40; then
                 sudo reboot
             fi
             ;;
-        11)
+        10)
             if whiptail --yesno "Are you sure you want to shutdown the Raspberry Pi?" 8 40; then
                 sudo shutdown now
             fi
