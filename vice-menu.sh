@@ -75,12 +75,13 @@ while true; do
 			whiptail --msgbox "Samba stopped." 8 40
 			;;
 		6)
-            whiptail --msgbox "Updating script and Makefile from git repository..." 8 40
-            if git -C "$DIR" pull 2> >(GITERR=$(cat); typeset -p GITERR >&2); then
-                whiptail --msgbox "Update complete. Restarting menu..." 8 40
-                exec "$0"
-            else
-                whiptail --msgbox "Git update failed! Please check your network or repository.\n\nError:\n$GITERR" 12 70
+            if whiptail --yesno "Do you want to update this script and Makefile from the git repository?" 10 60; then
+                if git -C "$DIR" pull 2> >(GITERR=$(cat); typeset -p GITERR >&2); then
+                    whiptail --msgbox "Update complete. Restarting menu..." 8 40
+                    exec "$0"
+                else
+                    whiptail --msgbox "Git update failed! Please check your network or repository.\n\nError:\n$GITERR" 12 70
+                fi
             fi
             ;;
         7)
