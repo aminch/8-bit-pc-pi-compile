@@ -36,7 +36,7 @@ This make file is designed to be used from a Raspberry Pi OS Lite (64-bit) clean
 
 2. **Install git if not already present:**
    ```bash
-   sudo apt-get install git
+   sudo apt-get install -y git
    ```
 
 3. **Clone this repository:**
@@ -66,6 +66,8 @@ Open a terminal in this directory and run:
 ```bash
 make all
 ```
+
+Reply (Y)es to any install questions if they appear.
 
 This will:
 - Install all build dependencies
