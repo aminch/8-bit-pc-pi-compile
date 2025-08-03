@@ -39,7 +39,7 @@ while true; do
 		"3" "Launch Midnight Commander file manager" \
 		"4" "Start Samba (Windows file sharing)" \
         "5" "Stop Samba (Windows file sharing)" \
-        "6" "Update this script & Makefile" \
+        "6" "Update vice-menu & Makefile" \
         "7" "Launch raspi-config" \
 		"8" "Set Pi to auto-login without a password" \
         "9" "Reboot Raspberry Pi" \
