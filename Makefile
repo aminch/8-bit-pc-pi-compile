@@ -112,7 +112,7 @@ install_menu:
 	sudo ln -sf $(PWD)/vice-menu.sh /usr/local/bin/vice-menu
 	@echo "You can now run 'vice-menu' from anywhere."
 
-reboot	
+reboot:	
 	@bash -c 'read -n 1 -s -r -p "Press any key to reboot to finalise set up..."; echo; sudo reboot'
 
 clean:
