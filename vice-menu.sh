@@ -5,7 +5,7 @@ VICE_VERSION="3.9"
 VICE_INSTALL_DIR=$HOME/vice-$VICE_VERSION
 
 # Path to this scripts directory
-DIR="$(pwd -P)"
+DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 
 get_current_bash_profile_emulator() {
 	grep "/vice-${VICE_VERSION}/bin/x" "$HOME/.bash_profile" 2>/dev/null | grep -E 'x64sc|x64' | awk -F'/' '{print $NF}'
