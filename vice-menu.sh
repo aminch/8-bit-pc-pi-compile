@@ -41,9 +41,10 @@ while true; do
 		"5" "Run autostart" \
 		"6" "Start Samba" \
         "7" "Stop Samba" \
-        "8" "Run raspi-config" \
-        "9" "Reboot Raspberry Pi" \
-        "10" "Shutdown Raspberry Pi" 3>&1 1>&2 2>&3)
+        "8" "Update this script & Makefile" \
+        "9" "Run raspi-config" \
+        "10" "Reboot Raspberry Pi" \
+        "11" "Shutdown Raspberry Pi" 3>&1 1>&2 2>&3)
 
 	case $CHOICE in
 		1)
@@ -82,15 +83,21 @@ while true; do
 			sudo systemctl stop smbd
 			whiptail --msgbox "Samba stopped." 8 40
 			;;
-        8)
+		8)
+			whiptail --msgbox "Updating script and Makefile from git repository..." 8 40
+			git -C "$DIR" pull
+			whiptail --msgbox "Update complete. Restarting menu..." 8 40
+			exec "$0"
+			;;
+        9)
             sudo raspi-config
             ;;
-        9)
+        10)
             if whiptail --yesno "Are you sure you want to reboot the Raspberry Pi?" 8 40; then
                 sudo reboot
             fi
             ;;
-        10)
+        11)
             if whiptail --yesno "Are you sure you want to shutdown the Raspberry Pi?" 8 40; then
                 sudo shutdown now
             fi
