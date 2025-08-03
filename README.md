@@ -32,7 +32,7 @@ This make file is designed to be used from a Raspberry Pi OS Lite (64-bit) clean
 
 1. **Log in to your Raspberry Pi**  
    - Use the username `pi` and the password you set in the Imager.
-   - You can log in directly on the Pi or via SSH if you enabled it.
+   - You can log in directly on the Pi.
 
 2. **Install git if not already present:**
    ```bash
