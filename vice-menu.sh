@@ -36,7 +36,6 @@ while true; do
 		--menu "Choose an option:" 20 60 8 \
 		"1" "Set emulator to launch (current: ${CURRENT_EMU:-none})" \
 		"2" "Launch current emulator" \
-   		""  "-----------------------------" \
 		"3" "Run Midnight Commander" \
 		"4" "Run autologin_pi" \
 		"5" "Run autostart" \
