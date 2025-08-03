@@ -18,9 +18,9 @@ VICE_DEPS = \
 	libpng-dev libjpeg-dev portaudio19-dev \
 	libsdl2-image-dev libsdl2-dev libsdl2-2.0-0
 
-.PHONY: all deps download extract autogen configure build install add_config_txt_changes samba_setup autologin_pi autostart_x64sc clean tools setup_vice_config
+.PHONY: all deps download extract autogen configure build install add_config_txt_changes samba_setup autologin_pi autostart clean tools setup_vice_config
 
-all: deps autologin_pi download extract autogen configure build install add_config_txt_changes samba_setup autostart_x64sc tools setup_vice_config
+all: deps autologin_pi download extract autogen configure build install add_config_txt_changes samba_setup autostart tools setup_vice_config
 
 deps:
 	sudo apt update -y
@@ -87,26 +87,29 @@ else \
 fi
 endef
 
-autostart_x64sc:
-	@echo "Adding the VICE emulator to ~/.bash_profile for auto-launch on login..."
-	@rm -f $$HOME/.bash_profile.vice_autostart
+autostart:
+	@echo "Configuring VICE autostart in ~/.bash_profile..."
+	# Remove any previous VICE autostart block
+	@sed -i '/# VICE AUTOSTART START/,/# VICE AUTOSTART END/d' $$HOME/.bash_profile || true
+	# Add new block based on Pi model
 	@bash -c '\
 		$(detect_pi4_family); \
 		if [ $$? -eq 0 ]; then \
-			echo "if [ -z \"$$SSH_CONNECTION\" ]; then" >> $$HOME/.bash_profile.vice_autostart; \
-			echo "  $(VICE_INSTALL_DIR)/bin/x64" >> $$HOME/.bash_profile.vice_autostart; \
-			echo "fi" >> $$HOME/.bash_profile.vice_autostart; \
+			echo "# VICE AUTOSTART START" >> $$HOME/.bash_profile; \
+			echo "if [ -z \"\$$SSH_CONNECTION\" ]; then" >> $$HOME/.bash_profile; \
+			echo "  $(VICE_INSTALL_DIR)/bin/x64" >> $$HOME/.bash_profile; \
+			echo "fi" >> $$HOME/.bash_profile; \
+			echo "# VICE AUTOSTART END" >> $$HOME/.bash_profile; \
 			echo "Configured to auto-start x64 for Pi 4, Pi 400, or CM4 model."; \
 		else \
-			echo "if [ -z \"$$SSH_CONNECTION\" ]; then" >> $$HOME/.bash_profile.vice_autostart; \
-			echo "  $(VICE_INSTALL_DIR)/bin/x64sc" >> $$HOME/.bash_profile.vice_autostart; \
-			echo "fi" >> $$HOME/.bash_profile.vice_autostart; \
+			echo "# VICE AUTOSTART START" >> $$HOME/.bash_profile; \
+			echo "if [ -z \"\$$SSH_CONNECTION\" ]; then" >> $$HOME/.bash_profile; \
+			echo "  $(VICE_INSTALL_DIR)/bin/x64sc" >> $$HOME/.bash_profile; \
+			echo "fi" >> $$HOME/.bash_profile; \
+			echo "# VICE AUTOSTART END" >> $$HOME/.bash_profile; \
 			echo "Configured to auto-start x64sc for non-Pi 4 model."; \
 		fi; \
 	'
-	@grep -v 'vice_autostart' $$HOME/.bash_profile > $$HOME/.bash_profile.tmp || true
-	@echo 'source $$HOME/.bash_profile.vice_autostart' >> $$HOME/.bash_profile.tmp
-	@mv $$HOME/.bash_profile.tmp $$HOME/.bash_profile
 	@echo "Auto-start configuration updated in ~/.bash_profile."
 
 tools:
