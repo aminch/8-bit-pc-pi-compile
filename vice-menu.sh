@@ -80,7 +80,7 @@ while true; do
                     whiptail --msgbox "Update complete. Restarting menu..." 8 40
                     exec "$0"
                 else
-                    whiptail --msgbox "Git update failed! Please check your network or repository.\n\nError:\n$GITERR" 12 70
+                    whiptail --msgbox "Git update failed! Please check your network or repository." 12 70
                 fi
             fi
             ;;
