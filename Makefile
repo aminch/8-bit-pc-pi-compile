@@ -104,7 +104,6 @@ setup_vice_config:
 	mkdir -p $$HOME/.config/vice
 	cp sdl-vicerc $$HOME/.config/vice/
 	@echo "Default VICE config (sdl-vicerc) copied to $$HOME/.config/vice/"
-	@bash -c 'read -n 1 -s -r -p "Press any key to reboot to finalise set up..."; echo; sudo reboot'
 
 install_menu:
 	@echo "Making vice-menu.sh executable..."
@@ -112,6 +111,7 @@ install_menu:
 	@echo "Installing vice-menu.sh symlink to /usr/local/bin/vice-menu..."
 	sudo ln -sf $(PWD)/vice-menu.sh /usr/local/bin/vice-menu
 	@echo "You can now run 'vice-menu' from anywhere."
+	@bash -c 'read -n 1 -s -r -p "Press any key to reboot to finalise set up..."; echo; sudo reboot'
 
 clean:
 	rm -rf $(VICE_SRC_DIR)
