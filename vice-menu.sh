@@ -33,7 +33,7 @@ while true; do
 	CURRENT_EMU=$(get_current_bash_profile_emulator)
 	CHOICE=$(whiptail --title "VICE Pi Menu" \
 		--ok-button "Select" --cancel-button "Exit" \
-		--menu "Choose an option:" 20 60 8 \
+		--menu "Choose an option:" 24 70 12 \
 		"1" "Set emulator to launch (current: ${CURRENT_EMU:-none})" \
 		"2" "Launch current emulator" \
 		"3" "Run Midnight Commander" \
