@@ -7,6 +7,9 @@ VICE_INSTALL_DIR=$HOME/vice-$VICE_VERSION
 # Path to this scripts directory
 DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 
+# Config file for VICE
+VICERC="$HOME/.config/vice/sdl-vicerc"
+
 get_current_bash_profile_emulator() {
 	grep "/vice-${VICE_VERSION}/bin/x" "$HOME/.bash_profile" 2>/dev/null | grep -E 'x64sc|x64' | awk -F'/' '{print $NF}'
 }
@@ -29,6 +32,41 @@ set_bash_profile_emulator() {
 	} >> "$HOME/.bash_profile"
 }
 
+get_joyport_setup() {
+    if grep -q '^JoyDevice1=3' "$VICERC" && grep -q '^JoyDevice2=3' "$VICERC"; then
+        echo "J1-J2 USB"
+    elif grep -q '^JoyDevice1=2' "$VICERC" && grep -q '^JoyDevice2=3' "$VICERC"; then
+        echo "M1-J2 USB"
+    elif grep -q '^JoyDevice1=1' "$VICERC" && grep -q '^JoyDevice2=1' "$VICERC"; then
+        echo "J1-J2 GPIO"
+    elif grep -q '^JoyDevice1=2' "$VICERC" && grep -q '^JoyDevice2=1' "$VICERC"; then
+        echo "M1-J2 USB/GPIO"
+    else
+        echo "Unknown"
+    fi
+}
+
+set_joyport_setup() {
+    case "$1" in
+        "J1-J2 USB")
+            sed -i 's/^JoyDevice1=.*/JoyDevice1=3/' "$VICERC"
+            sed -i 's/^JoyDevice2=.*/JoyDevice2=3/' "$VICERC"
+            ;;
+        "M1-J2 USB")
+            sed -i 's/^JoyDevice1=.*/JoyDevice1=2/' "$VICERC"
+            sed -i 's/^JoyDevice2=.*/JoyDevice2=3/' "$VICERC"
+            ;;
+        "J1-J2 GPIO")
+            sed -i 's/^JoyDevice1=.*/JoyDevice1=1/' "$VICERC"
+            sed -i 's/^JoyDevice2=.*/JoyDevice2=1/' "$VICERC"
+            ;;
+        "M1-J2 USB/GPIO")
+            sed -i 's/^JoyDevice1=.*/JoyDevice1=2/' "$VICERC"
+            sed -i 's/^JoyDevice2=.*/JoyDevice2=1/' "$VICERC"
+            ;;
+    esac
+}
+
 while true; do
 	CURRENT_EMU=$(get_current_bash_profile_emulator)
 	CHOICE=$(whiptail --title "VICE Pi Menu" \
@@ -36,14 +74,15 @@ while true; do
 		--menu "Choose an option:" 24 80 12 \
 		"1" "Set emulator to launch (current: ${CURRENT_EMU:-none})" \
 		"2" "Launch current emulator" \
-		"3" "Launch Midnight Commander file manager" \
-		"4" "Start Samba (Windows file sharing)" \
-        "5" "Stop Samba (Windows file sharing)" \
-        "6" "Update vice-menu & Makefile" \
-        "7" "Launch raspi-config" \
-		"8" "Set Pi to auto-login without a password" \
-        "9" "Reboot Raspberry Pi" \
-        "10" "Shutdown Raspberry Pi" 3>&1 1>&2 2>&3)
+        "3" "Select joyport setup (current: ${JOYPORT_SETUP})" \
+		"4" "Launch Midnight Commander file manager" \
+		"5" "Start Samba (Windows file sharing)" \
+        "6" "Stop Samba (Windows file sharing)" \
+        "7" "Update vice-menu & Makefile" \
+        "8" "Launch raspi-config" \
+		"9" "Set Pi to auto-login without a password" \
+        "10" "Reboot Raspberry Pi" \
+        "11" "Shutdown Raspberry Pi" 3>&1 1>&2 2>&3)
 
 	case $CHOICE in
 		1)
@@ -63,18 +102,29 @@ while true; do
 				whiptail --msgbox "No emulator set in ~/.bash_profile" 8 40
 			fi
 			;;
-		3)
+        3)
+            JOY=$(whiptail --title "Select Joyport Setup" --menu "Choose joyport setup:" 15 70 4 \
+                "J1-J2 USB" "Both joysticks on USB" \
+                "M1-J2 USB" "Mouse (port 1) on USB, Joystick (port 2) on USB" \
+                "J1-J2 GPIO" "Both joysticks on GPIO" \
+                "M1-J2 USB/GPIO" "Mouse (port 1) on USB, Joystick (port 2) on GPIO" 3>&1 1>&2 2>&3)
+            if [ -n "$JOY" ]; then
+                set_joyport_setup "$JOY"
+                whiptail --msgbox "Joyports set to $JOY in sdl-vicerc" 8 40
+            fi
+            ;;
+		4)
 			mc
 			;;
-		4)
+		5)
 			sudo systemctl start smbd
 			whiptail --msgbox "Samba started." 8 40
 			;;
-		5)
+		6)
 			sudo systemctl stop smbd
 			whiptail --msgbox "Samba stopped." 8 40
 			;;
-		6)
+		7)
             if whiptail --yesno "Do you want to update this script and Makefile from the git repository?" 10 60; then
                 if git -C "$DIR" pull 2> >(GITERR=$(cat); typeset -p GITERR >&2); then
                     whiptail --msgbox "Update complete. Restarting menu..." 8 40
@@ -84,19 +134,19 @@ while true; do
                 fi
             fi
             ;;
-        7)
+        8)
             sudo raspi-config
             ;;
-		8)
+		9)
 			make -C "$DIR" autologin_pi
 			whiptail --msgbox "Auto-login setup complete." 8 40
 			;;
-        9)
+        10)
             if whiptail --yesno "Are you sure you want to reboot the Raspberry Pi?" 8 40; then
                 sudo reboot
             fi
             ;;
-        10)
+        11)
             if whiptail --yesno "Are you sure you want to shutdown the Raspberry Pi?" 8 40; then
                 sudo shutdown now
             fi
