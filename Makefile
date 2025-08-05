@@ -76,31 +76,31 @@ CONFIG_FILE="$(CONFIG_FILE)"; \
 CHECK_LINE="dtoverlay=gpio-key,gpio=17,active_low=1,gpio_pull=up,keycode=73"; \
 if ! grep -q "$$CHECK_LINE" "$$CONFIG_FILE"; then \
   echo "Appending GPIO joystick key overlays..."; \
-  cat <<EOF | sudo tee -a "$$CONFIG_FILE" > /dev/null
-# Joystick 1
-# Up (Numpad 9)
-dtoverlay=gpio-key,gpio=17,active_low=1,gpio_pull=up,keycode=73
-# Down (Numpad 3)
-dtoverlay=gpio-key,gpio=18,active_low=1,gpio_pull=up,keycode=81
-# Left (Numpad 7)
-dtoverlay=gpio-key,gpio=27,active_low=1,gpio_pull=up,keycode=71
-# Right (Numpad 1)
-dtoverlay=gpio-key,gpio=22,active_low=1,gpio_pull=up,keycode=79
-# Fire (Numpad 0)
-dtoverlay=gpio-key,gpio=23,active_low=1,gpio_pull=up,keycode=82
-
-# Joystick 2
-# Up (Numpad 8)
-dtoverlay=gpio-key,gpio=5,active_low=1,gpio_pull=up,keycode=72
-# Down (Numpad 2)
-dtoverlay=gpio-key,gpio=6,active_low=1,gpio_pull=up,keycode=80
-# Left (Numpad 4)
-dtoverlay=gpio-key,gpio=12,active_low=1,gpio_pull=up,keycode=75
-# Right (Numpad 6)
-dtoverlay=gpio-key,gpio=13,active_low=1,gpio_pull=up,keycode=77
-# Fire (Numpad 5)
-dtoverlay=gpio-key,gpio=19,active_low=1,gpio_pull=up,keycode=76
-EOF
+  cat <<EOF | sudo tee -a "$$CONFIG_FILE" > /dev/null; \
+# Joystick 1 \
+# Up (Numpad 9) \
+dtoverlay=gpio-key,gpio=17,active_low=1,gpio_pull=up,keycode=73 \
+# Down (Numpad 3) \
+dtoverlay=gpio-key,gpio=18,active_low=1,gpio_pull=up,keycode=81 \
+# Left (Numpad 7) \
+dtoverlay=gpio-key,gpio=27,active_low=1,gpio_pull=up,keycode=71 \
+# Right (Numpad 1) \
+dtoverlay=gpio-key,gpio=22,active_low=1,gpio_pull=up,keycode=79 \
+# Fire (Numpad 0) \
+dtoverlay=gpio-key,gpio=23,active_low=1,gpio_pull=up,keycode=82 \
+\
+# Joystick 2 \
+# Up (Numpad 8) \
+dtoverlay=gpio-key,gpio=5,active_low=1,gpio_pull=up,keycode=72 \
+# Down (Numpad 2) \
+dtoverlay=gpio-key,gpio=6,active_low=1,gpio_pull=up,keycode=80 \
+# Left (Numpad 4) \
+dtoverlay=gpio-key,gpio=12,active_low=1,gpio_pull=up,keycode=75 \
+# Right (Numpad 6) \
+dtoverlay=gpio-key,gpio=13,active_low=1,gpio_pull=up,keycode=77 \
+# Fire (Numpad 5) \
+dtoverlay=gpio-key,gpio=19,active_low=1,gpio_pull=up,keycode=76 \
+EOF \
   echo "GPIO joystick key overlays added to $$CONFIG_FILE."; \
 else \
   echo "GPIO joystick key overlays already present in $$CONFIG_FILE."; \
