@@ -9,6 +9,13 @@ ifeq ($(shell model=$$(tr -d "\0" < /proc/device-tree/model); echo $$model | gre
 VICE_APP := x64
 endif
 
+# Set the location of the config.txt file checking firmware directory first
+ifeq ($(shell test -d /boot/firmware && echo yes),yes)
+CONFIG_FILE := /boot/firmware/config.txt
+else
+# Fallback to the standard config.txt location
+CONFIG_FILE := /boot/config.txt
+
 # OS support dependencies (audio, video, system libraries)
 OS_DEPS = \
 	pulseaudio alsa-tools
@@ -58,17 +65,41 @@ install:
 	cd $(VICE_BUILD_DIR) && make install
 
 add_config_txt_changes:
-	@echo "Disabling Raspberry Pi rainbow splash screen in /boot/config.txt or /boot/firmware/config.txt..."
-	@if [ -f /boot/firmware/config.txt ]; then \
-		sudo sed -i '/^disable_splash=/d' /boot/firmware/config.txt; \
-		echo "disable_splash=1" | sudo tee -a /boot/firmware/config.txt; \
-		echo "Rainbow splash screen will be hidden on next boot (set in /boot/firmware/config.txt)."; \
+	@echo "Disabling Raspberry Pi rainbow splash screen in config.txt..."
+	sudo sed -i '/^disable_splash=/d' $(CONFIG_FILE); \
+	echo "disable_splash=1" | sudo tee -a $(CONFIG_FILE); \
+	echo "Rainbow splash screen will be hidden on next boot (set in $(CONFIG_FILE))."; \
+	@echo "Adding GPIO joystick key overlays to config.txt..."
+	BLOCK="# Joystick 1\n\
+# Up (Numpad 9)\n\
+dtoverlay=gpio-key,gpio=17,active_low=1,gpio_pull=up,keycode=73\n\
+# Down (Numpad 3)\n\
+dtoverlay=gpio-key,gpio=18,active_low=1,gpio_pull=up,keycode=81\n\
+# Left (Numpad 7)\n\
+dtoverlay=gpio-key,gpio=27,active_low=1,gpio_pull=up,keycode=71\n\
+# Right (Numpad 1)\n\
+dtoverlay=gpio-key,gpio=22,active_low=1,gpio_pull=up,keycode=79\n\
+# Fire (Numpad 0)\n\
+dtoverlay=gpio-key,gpio=23,active_low=1,gpio_pull=up,keycode=82\n\
+\n\
+# Joystick 2\n\
+# Up (Numpad 8)\n\
+dtoverlay=gpio-key,gpio=5,active_low=1,gpio_pull=up,keycode=72\n\
+# Down (Numpad 2)\n\
+dtoverlay=gpio-key,gpio=6,active_low=1,gpio_pull=up,keycode=80\n\
+# Left (Numpad 4)\n\
+dtoverlay=gpio-key,gpio=12,active_low=1,gpio_pull=up,keycode=75\n\
+# Right (Numpad 6)\n\
+dtoverlay=gpio-key,gpio=13,active_low=1,gpio_pull=up,keycode=77\n\
+# Fire (Numpad 5)\n\
+dtoverlay=gpio-key,gpio=19,active_low=1,gpio_pull=up,keycode=76\n"
+	if ! grep -q "dtoverlay=gpio-key,gpio=17,active_low=1,gpio_pull=up,keycode=73" $$CONFIG_FILE; then \
+		echo "$$BLOCK" | sudo tee -a $$CONFIG_FILE; \
+		echo "GPIO joystick key overlays added to $${CONFIG_FILE}."; \
 	else \
-		sudo sed -i '/^disable_splash=/d' /boot/config.txt; \
-		echo "disable_splash=1" | sudo tee -a /boot/config.txt; \
-		echo "Rainbow splash screen will be hidden on next boot (set in /boot/config.txt)."; \
+		echo "GPIO joystick key overlays already present in $${CONFIG_FILE}."; \
 	fi
-
+	
 samba_setup:
 	sudo apt-get update
 	sudo apt-get install -y samba
