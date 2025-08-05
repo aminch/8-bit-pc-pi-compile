@@ -91,16 +91,22 @@ install:
 
 update_config:
 	@echo "Disabling Raspberry Pi rainbow splash screen in config.txt..."
-	sudo sed -i '/^disable_splash=/d' $(CONFIG_FILE)
-	echo "disable_splash=1" | sudo tee -a $(CONFIG_FILE)
-	echo "Rainbow splash screen will be hidden on next boot (set in $(CONFIG_FILE))."
+	@if grep -q '^disable_splash=' $(CONFIG_FILE); then \
+		sudo sed -i '/^disable_splash=/d' $(CONFIG_FILE); \
+	fi
+	@if ! grep -q '^disable_splash=1' $(CONFIG_FILE); then \
+		echo "disable_splash=1" | sudo tee -a $(CONFIG_FILE) > /dev/null; \
+		echo "Rainbow splash screen will be hidden on next boot (set in $(CONFIG_FILE))."; \
+	else \
+		echo "disable_splash=1 already present in $(CONFIG_FILE)."; \
+	fi
 	@echo "Adding GPIO joystick key overlays to config.txt..."
 	@sh -c '\
 if ! grep -q "dtoverlay=gpio-key,gpio=17,active_low=1,gpio_pull=up,keycode=73" $(CONFIG_FILE); then \
-    echo "$$GPIO_KEY_ENTRY" | sudo tee -a $(CONFIG_FILE); \
-    echo "GPIO joystick key overlays added to $(CONFIG_FILE)."; \
+	echo "$$GPIO_KEY_ENTRY" | sudo tee -a $(CONFIG_FILE); \
+	echo "GPIO joystick key overlays added to $(CONFIG_FILE)."; \
 else \
-    echo "GPIO joystick key overlays already present in $(CONFIG_FILE)."; \
+	echo "GPIO joystick key overlays already present in $(CONFIG_FILE)."; \
 fi'
 	
 samba_setup:
