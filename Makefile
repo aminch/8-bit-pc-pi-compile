@@ -68,11 +68,26 @@ install:
 update_config:
 	@echo "Disabling Raspberry Pi rainbow splash screen in config.txt..."
 	@sudo sed -i '/^disable_splash=/d' $(CONFIG_FILE)
-	@echo "disable_splash=1" | sudo tee -a $(CONFIG_FILE) > /dev/null
-	@echo "Added disable_splash=1 to $(CONFIG_FILE)."
+	@if ! grep -q '^disable_splash=1' $(CONFIG_FILE); then \
+		LINE=$$(grep -n '^\[' $(CONFIG_FILE) | head -n1 | cut -d: -f1); \
+		if [ -n "$$LINE" ]; then \
+			sudo sed -i "$$((LINE-1))r /dev/stdin" $(CONFIG_FILE) <<< "disable_splash=1\n"; \
+		else \
+			echo "disable_splash=1\n" | sudo tee -a $(CONFIG_FILE) > /dev/null; \
+		fi; \
+		sudo sed -i "/disable_splash=1/a\\" $(CONFIG_FILE); \
+		echo "Added disable_splash=1 to $(CONFIG_FILE)."; \
+	else \
+		echo "disable_splash=1 already present in $(CONFIG_FILE)."; \
+	fi
 	@echo "Checking for existing GPIO joystick key overlays..."
 	@if ! grep -q "dtoverlay=gpio-key,gpio=17,active_low=1,gpio_pull=up,keycode=73" $(CONFIG_FILE); then \
-		sudo tee -a $(CONFIG_FILE) < gpio-keys.txt > /dev/null; \
+		LINE=$$(grep -n '^\[' $(CONFIG_FILE) | head -n1 | cut -d: -f1); \
+		if [ -n "$$LINE" ]; then \
+			sudo sed -i "$$((LINE-1))r gpio-keys.txt" $(CONFIG_FILE); \
+		else \
+			sudo tee -a $(CONFIG_FILE) < gpio-keys.txt > /dev/null; \
+		fi; \
 		echo "GPIO joystick key overlays added to $(CONFIG_FILE)."; \
 	else \
 		echo "GPIO joystick key overlays already present in $(CONFIG_FILE)."; \
