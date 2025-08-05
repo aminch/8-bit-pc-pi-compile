@@ -15,6 +15,7 @@ CONFIG_FILE := /boot/firmware/config.txt
 else
 # Fallback to the standard config.txt location
 CONFIG_FILE := /boot/config.txt
+endif
 
 # OS support dependencies (audio, video, system libraries)
 OS_DEPS = \
