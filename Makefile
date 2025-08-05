@@ -84,16 +84,18 @@ update_config:
 	fi
 	@echo "Checking for existing GPIO joystick key overlays..."
 	@if ! grep -q "dtoverlay=gpio-key,gpio=17,active_low=1,gpio_pull=up,keycode=73" $(CONFIG_FILE); then \
-		LINE=$$(grep -n '^\[' $(CONFIG_FILE) | head -n1 | cut -d: -f1); \
-		if [ -n "$$LINE" ]; then \
-			sudo sed -i "$$((LINE-1))r gpio-keys.txt" $(CONFIG_FILE); \
-		else \
-			sudo tee -a $(CONFIG_FILE) < gpio-keys.txt > /dev/null; \
-		fi; \
-		echo "GPIO joystick key overlays added to $(CONFIG_FILE)."; \
-	else \
-		echo "GPIO joystick key overlays already present in $(CONFIG_FILE)."; \
-	fi
+        LINE=$$(grep -n '^\[' $(CONFIG_FILE) | head -n1 | cut -d: -f1); \
+        if [ -n "$$LINE" ]; then \
+            sudo sed -i "$$((LINE-1))r gpio-keys.txt" $(CONFIG_FILE); \
+            sudo sed -i "$$LINE i\\" $(CONFIG_FILE); \
+        else \
+            sudo tee -a $(CONFIG_FILE) < gpio-keys.txt > /dev/null; \
+            echo | sudo tee -a $(CONFIG_FILE) > /dev/null; \
+        fi; \
+        echo "GPIO joystick key overlays added to $(CONFIG_FILE)."; \
+    else \
+        echo "GPIO joystick key overlays already present in $(CONFIG_FILE)."; \
+    fi
 
 samba_setup:
 	sudo apt-get update
