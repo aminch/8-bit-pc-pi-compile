@@ -23,3 +23,4 @@ dtoverlay=gpio-key,gpio=12,active_low=1,gpio_pull=up,keycode=75
 dtoverlay=gpio-key,gpio=13,active_low=1,gpio_pull=up,keycode=77
 # Fire (Numpad 5)
 dtoverlay=gpio-key,gpio=19,active_low=1,gpio_pull=up,keycode=76
+
