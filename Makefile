@@ -70,12 +70,14 @@ update_config:
 	@sudo sed -i '/^disable_splash=/d' $(CONFIG_FILE)
 	@if ! grep -q '^disable_splash=1' $(CONFIG_FILE); then \
 		LINE=$$(grep -n '^\[' $(CONFIG_FILE) | head -n1 | cut -d: -f1); \
+		echo "disable_splash=1" > /tmp/vice-tmp.txt; \
+		echo "" >> /tmp/vice-tmp.txt; \
 		if [ -n "$$LINE" ]; then \
-			sudo sed -i "$$((LINE-1))r /dev/stdin" $(CONFIG_FILE) <<< "disable_splash=1\n"; \
+			sudo sed -i "$$((LINE-1))r /tmp/vice-tmp.txt" $(CONFIG_FILE); \
 		else \
-			echo "disable_splash=1\n" | sudo tee -a $(CONFIG_FILE) > /dev/null; \
+			sudo tee -a $(CONFIG_FILE) < /tmp/vice-tmp.txt > /dev/null; \
 		fi; \
-		sudo sed -i "/disable_splash=1/a\\" $(CONFIG_FILE); \
+		rm -f /tmp/vice-tmp.txt; \
 		echo "Added disable_splash=1 to $(CONFIG_FILE)."; \
 	else \
 		echo "disable_splash=1 already present in $(CONFIG_FILE)."; \
