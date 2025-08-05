@@ -99,7 +99,7 @@ update_config:
 CONFIG_FILE="$(CONFIG_FILE)"; \
 OVERLAY="dtoverlay=gpio-key,gpio=17,active_low=1,gpio_pull=up,keycode=73"; \
 if ! grep -q "$$OVERLAY" "$$CONFIG_FILE"; then \
-  echo "$$OVERLAY" | sudo tee -a "$$CONFIG_FILE"; \
+  echo "$$GPIO_KEY_ENTRY" | sudo tee -a "$$CONFIG_FILE"; \
   echo "GPIO joystick key overlays added to $$CONFIG_FILE."; \
 else \
   echo "GPIO joystick key overlays already present in $$CONFIG_FILE."; \
