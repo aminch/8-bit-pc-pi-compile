@@ -70,13 +70,13 @@ update_config:
 	@sudo sed -i '/^disable_splash=/d' $(CONFIG_FILE)
 	@echo "disable_splash=1" | sudo tee -a $(CONFIG_FILE) > /dev/null
 	@echo "Added disable_splash=1 to $(CONFIG_FILE)."
-	@echo "Adding GPIO joystick key overlays to config.txt..."
+	@echo "Checking for existing GPIO joystick key overlays..."
 	@sh -c '\
-CONFIG_FILE="$(CONFIG_FILE)"; \
-CHECK_LINE="dtoverlay=gpio-key,gpio=17,active_low=1,gpio_pull=up,keycode=73"; \
-if ! grep -q "$$CHECK_LINE" "$$CONFIG_FILE"; then \
-  echo "Appending GPIO joystick key overlays..."; \
-  cat <<EOF | sudo tee -a "$$CONFIG_FILE" > /dev/null; \
+  CONFIG_FILE="$(CONFIG_FILE)"; \
+  CHECK_LINE="dtoverlay=gpio-key,gpio=17,active_low=1,gpio_pull=up,keycode=73"; \
+  if ! grep -q "$$CHECK_LINE" "$$CONFIG_FILE"; then \
+    echo "Appending GPIO joystick key overlays..."; \
+    sudo tee -a "$$CONFIG_FILE" > /dev/null <<EOF; \
 # Joystick 1 \
 # Up (Numpad 9) \
 dtoverlay=gpio-key,gpio=17,active_low=1,gpio_pull=up,keycode=73 \
@@ -101,10 +101,11 @@ dtoverlay=gpio-key,gpio=13,active_low=1,gpio_pull=up,keycode=77 \
 # Fire (Numpad 5) \
 dtoverlay=gpio-key,gpio=19,active_low=1,gpio_pull=up,keycode=76 \
 EOF \
-  echo "GPIO joystick key overlays added to $$CONFIG_FILE."; \
-else \
-  echo "GPIO joystick key overlays already present in $$CONFIG_FILE."; \
-fi'
+    echo "GPIO joystick key overlays added to $$CONFIG_FILE."; \
+  else \
+    echo "GPIO joystick key overlays already present in $$CONFIG_FILE."; \
+  fi'
+
 
 samba_setup:
 	sudo apt-get update
