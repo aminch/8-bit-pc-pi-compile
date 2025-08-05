@@ -31,9 +31,33 @@ VICE_DEPS = \
 	libpng-dev libjpeg-dev portaudio19-dev \
 	libsdl2-image-dev libsdl2-dev libsdl2-2.0-0
 
-.PHONY: all deps download extract autogen configure build install add_config_txt_changes samba_setup autologin_pi autostart clean tools setup_vice_config install_menu reboot
+GPIO_KEY_ENTRY="# Joystick 1\n\
+# Up (Numpad 9)\n\
+dtoverlay=gpio-key,gpio=17,active_low=1,gpio_pull=up,keycode=73\n\
+# Down (Numpad 3)\n\
+dtoverlay=gpio-key,gpio=18,active_low=1,gpio_pull=up,keycode=81\n\
+# Left (Numpad 7)\n\
+dtoverlay=gpio-key,gpio=27,active_low=1,gpio_pull=up,keycode=71\n\
+# Right (Numpad 1)\n\
+dtoverlay=gpio-key,gpio=22,active_low=1,gpio_pull=up,keycode=79\n\
+# Fire (Numpad 0)\n\
+dtoverlay=gpio-key,gpio=23,active_low=1,gpio_pull=up,keycode=82\n\
+\n\
+# Joystick 2\n\
+# Up (Numpad 8)\n\
+dtoverlay=gpio-key,gpio=5,active_low=1,gpio_pull=up,keycode=72\n\
+# Down (Numpad 2)\n\
+dtoverlay=gpio-key,gpio=6,active_low=1,gpio_pull=up,keycode=80\n\
+# Left (Numpad 4)\n\
+dtoverlay=gpio-key,gpio=12,active_low=1,gpio_pull=up,keycode=75\n\
+# Right (Numpad 6)\n\
+dtoverlay=gpio-key,gpio=13,active_low=1,gpio_pull=up,keycode=77\n\
+# Fire (Numpad 5)\n\
+dtoverlay=gpio-key,gpio=19,active_low=1,gpio_pull=up,keycode=76\n"
 
-all: deps autologin_pi download extract autogen configure build install add_config_txt_changes samba_setup autostart tools setup_vice_config install_menu reboot
+.PHONY: all deps download extract autogen configure build install update_config samba_setup autologin_pi autostart clean tools setup_vice_config install_menu reboot
+
+all: deps autologin_pi download extract autogen configure build install update_config samba_setup autostart tools setup_vice_config install_menu reboot
 
 deps:
 	sudo apt update -y
@@ -64,41 +88,19 @@ build:
 install:
 	cd $(VICE_BUILD_DIR) && make install
 
-add_config_txt_changes:
+update_config:
 	@echo "Disabling Raspberry Pi rainbow splash screen in config.txt..."
-	sudo sed -i '/^disable_splash=/d' $(CONFIG_FILE); \
-	echo "disable_splash=1" | sudo tee -a $(CONFIG_FILE); \
-	echo "Rainbow splash screen will be hidden on next boot (set in $(CONFIG_FILE))."; \
+	sudo sed -i '/^disable_splash=/d' $(CONFIG_FILE)
+	echo "disable_splash=1" | sudo tee -a $(CONFIG_FILE)
+	echo "Rainbow splash screen will be hidden on next boot (set in $(CONFIG_FILE))."
 	@echo "Adding GPIO joystick key overlays to config.txt..."
-	BLOCK="# Joystick 1\n\
-# Up (Numpad 9)\n\
-dtoverlay=gpio-key,gpio=17,active_low=1,gpio_pull=up,keycode=73\n\
-# Down (Numpad 3)\n\
-dtoverlay=gpio-key,gpio=18,active_low=1,gpio_pull=up,keycode=81\n\
-# Left (Numpad 7)\n\
-dtoverlay=gpio-key,gpio=27,active_low=1,gpio_pull=up,keycode=71\n\
-# Right (Numpad 1)\n\
-dtoverlay=gpio-key,gpio=22,active_low=1,gpio_pull=up,keycode=79\n\
-# Fire (Numpad 0)\n\
-dtoverlay=gpio-key,gpio=23,active_low=1,gpio_pull=up,keycode=82\n\
-\n\
-# Joystick 2\n\
-# Up (Numpad 8)\n\
-dtoverlay=gpio-key,gpio=5,active_low=1,gpio_pull=up,keycode=72\n\
-# Down (Numpad 2)\n\
-dtoverlay=gpio-key,gpio=6,active_low=1,gpio_pull=up,keycode=80\n\
-# Left (Numpad 4)\n\
-dtoverlay=gpio-key,gpio=12,active_low=1,gpio_pull=up,keycode=75\n\
-# Right (Numpad 6)\n\
-dtoverlay=gpio-key,gpio=13,active_low=1,gpio_pull=up,keycode=77\n\
-# Fire (Numpad 5)\n\
-dtoverlay=gpio-key,gpio=19,active_low=1,gpio_pull=up,keycode=76\n"
-	if ! grep -q "dtoverlay=gpio-key,gpio=17,active_low=1,gpio_pull=up,keycode=73" $$CONFIG_FILE; then \
-		echo "$$BLOCK" | sudo tee -a $$CONFIG_FILE; \
-		echo "GPIO joystick key overlays added to $${CONFIG_FILE}."; \
-	else \
-		echo "GPIO joystick key overlays already present in $${CONFIG_FILE}."; \
-	fi
+	@sh -c '\
+if ! grep -q "dtoverlay=gpio-key,gpio=17,active_low=1,gpio_pull=up,keycode=73" $(CONFIG_FILE); then \
+    echo "$$GPIO_KEY_ENTRY" | sudo tee -a $(CONFIG_FILE); \
+    echo "GPIO joystick key overlays added to $(CONFIG_FILE)."; \
+else \
+    echo "GPIO joystick key overlays already present in $(CONFIG_FILE)."; \
+fi'
 	
 samba_setup:
 	sudo apt-get update
