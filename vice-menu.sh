@@ -33,13 +33,18 @@ set_bash_profile_emulator() {
 }
 
 get_joyport_setup() {
-    if grep -q '^JoyDevice1=3' "$VICERC" && grep -q '^JoyDevice2=3' "$VICERC"; then
+    local jd1 jd2 jp1
+    jd1=$(awk -F= '/^JoyDevice1=/{print $2}' "$VICERC")
+    jd2=$(awk -F= '/^JoyDevice2=/{print $2}' "$VICERC")
+    jp1=$(awk -F= '/^JoyPort1Device=/{print $2}' "$VICERC")
+
+    if [ "${jd1:-0}" -ge 4 ] && [ "${jd2:-0}" -ge 4 ]; then
         echo "J1-J2 USB"
-    elif grep -q '^JoyDevice1=2' "$VICERC" && grep -q '^JoyDevice2=3' "$VICERC"; then
+    elif [ "$jp1" = 3 ]] && [ "${jd2:-0}" -ge 4 ]; then
         echo "M1-J2 USB"
-    elif grep -q '^JoyDevice1=1' "$VICERC" && grep -q '^JoyDevice2=1' "$VICERC"; then
+    elif [ "$jd1" = "2" ] && [ "$jd2" = "3" ]; then
         echo "J1-J2 GPIO"
-    elif grep -q '^JoyDevice1=2' "$VICERC" && grep -q '^JoyDevice2=1' "$VICERC"; then
+    elif [ "$jp1" = 3 ] && [ "$jd2" = "3" ]; then
         echo "M1-J2 USB/GPIO"
     else
         echo "Unknown"
@@ -49,20 +54,20 @@ get_joyport_setup() {
 set_joyport_setup() {
     case "$1" in
         "J1-J2 USB")
-            sed -i 's/^JoyDevice1=.*/JoyDevice1=3/' "$VICERC"
-            sed -i 's/^JoyDevice2=.*/JoyDevice2=3/' "$VICERC"
+            sed -i 's/^JoyDevice1=.*/JoyDevice1=4/' "$VICERC"
+            sed -i 's/^JoyDevice2=.*/JoyDevice2=4/' "$VICERC"
             ;;
         "M1-J2 USB")
+            sed -i 's/^JoyPort1Device=.*/JoyPort1Device=3/' "$VICERC"
+            sed -i 's/^JoyDevice2=.*/JoyDevice2=4/' "$VICERC"
+            ;;
+        "J1-J2 GPIO")
             sed -i 's/^JoyDevice1=.*/JoyDevice1=2/' "$VICERC"
             sed -i 's/^JoyDevice2=.*/JoyDevice2=3/' "$VICERC"
             ;;
-        "J1-J2 GPIO")
-            sed -i 's/^JoyDevice1=.*/JoyDevice1=1/' "$VICERC"
-            sed -i 's/^JoyDevice2=.*/JoyDevice2=1/' "$VICERC"
-            ;;
         "M1-J2 USB/GPIO")
-            sed -i 's/^JoyDevice1=.*/JoyDevice1=2/' "$VICERC"
-            sed -i 's/^JoyDevice2=.*/JoyDevice2=1/' "$VICERC"
+            sed -i 's/^JoyPort1Device=.*/JoyPort1Device=3/' "$VICERC"
+            sed -i 's/^JoyDevice2=.*/JoyDevice2=3/' "$VICERC"
             ;;
     esac
 }
