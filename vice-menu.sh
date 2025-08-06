@@ -51,31 +51,43 @@ get_joyport_setup() {
     fi
 }
 
+set_or_add_config() {
+    local key="$1"
+    local value="$2"
+    local file="$3"
+
+    if grep -q "^$key=" "$file"; then
+        sed -i "s/^$key=.*/$key=$value/" "$file"
+    else
+        echo "$key=$value" >> "$file"
+    fi
+}
+
 set_joyport_setup() {
     case "$1" in
         "J1-J2 USB")
             sed -i '/^JoyPort1Device=/d' "$VICERC"
             sed -i '/^JoyPort2Device=/d' "$VICERC"
-            sed -i 's/^JoyDevice1=.*/JoyDevice1=4/' "$VICERC"
-            sed -i 's/^JoyDevice2=.*/JoyDevice2=4/' "$VICERC"
+            set_or_add_config JoyDevice1 4 "$VICERC"
+            set_or_add_config JoyDevice2 4 "$VICERC"
             ;;
         "M1-J2 USB")
-            sed -i 's/^JoyPort1Device=.*/JoyPort1Device=3/' "$VICERC"
+            set_or_add_config JoyPort1Device 3 "$VICERC"
             sed -i '/^JoyPort2Device=/d' "$VICERC"
             sed -i '/^JoyDevice1=/d' "$VICERC"
-            sed -i 's/^JoyDevice2=.*/JoyDevice2=4/' "$VICERC"
+            set_or_add_config JoyDevice2 4 "$VICERC"
             ;;
         "J1-J2 GPIO")
             sed -i '/^JoyPort1Device=/d' "$VICERC"
             sed -i '/^JoyPort2Device=/d' "$VICERC"
-            sed -i 's/^JoyDevice1=.*/JoyDevice1=2/' "$VICERC"
-            sed -i 's/^JoyDevice2=.*/JoyDevice2=3/' "$VICERC"
+            set_or_add_config JoyDevice1 2 "$VICERC"
+            set_or_add_config JoyDevice2 3 "$VICERC"
             ;;
         "M1-J2 USB/GPIO")
-            sed -i 's/^JoyPort1Device=.*/JoyPort1Device=3/' "$VICERC"
+            set_or_add_config JoyPort1Device 3 "$VICERC"
             sed -i '/^JoyPort2Device=/d' "$VICERC"
             sed -i '/^JoyDevice1=/d' "$VICERC"
-            sed -i 's/^JoyDevice2=.*/JoyDevice2=3/' "$VICERC"
+            set_or_add_config JoyDevice2 3 "$VICERC"
             ;;
     esac
 }
