@@ -103,13 +103,13 @@ set_joyport_setup() {
 }
 
 while true; do
-	CURRENT_EMU=$(get_current_bash_profile_emulator)
-	JOYPORT_SETUP=$(get_joyport_setup)	
-	CHOICE=$(whiptail --title "VICE Pi Menu" \
-		--ok-button "Select" --cancel-button "Exit" \
-		--menu "Choose an option:" 24 80 12 \
-		"1" "Set emulator to launch (current: ${CURRENT_EMU:-none})" \
-		"2" "Launch current emulator" \
+    CURRENT_EMU=$(get_current_bash_profile_emulator)
+    JOYPORT_SETUP=$(get_joyport_setup)
+    CHOICE=$(whiptail --title "VICE Pi Menu" \
+        --ok-button "Select" --cancel-button "Exit" \
+        --menu "Choose an option:" 24 80 12 \
+        "1" "Set emulator to launch (current: ${CURRENT_EMU:-none})" \
+        "2" "Launch current emulator" \
         "3" "Select joyport setup (current: ${JOYPORT_SETUP})" \
 		"4" "Launch Midnight Commander file manager" \
 		"5" "Start Samba (Windows file sharing)" \
@@ -127,6 +127,9 @@ while true; do
 				"x64sc" "C64 emulator (cycle exact, Pi500)" 3>&1 1>&2 2>&3)
 			if [ -n "$EMU" ]; then
 				set_bash_profile_emulator "$EMU"
+				# Immediately update CURRENT_EMU and JOYPORT_SETUP for the new selection
+				CURRENT_EMU="$EMU"
+				JOYPORT_SETUP=$(get_joyport_setup)
 				whiptail --msgbox "Set emulator to $EMU in ~/.bash_profile" 8 40
 			fi
 			;;
