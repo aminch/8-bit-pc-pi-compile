@@ -97,6 +97,9 @@ set_joyport_setup() {
             crudini --set "$VICERC" "$section" JoyDevice2 3
             ;;
     esac
+
+	# Remove spaces around = for all settings in the file
+	sed -i 's/^\([A-Za-z0-9_]\+\) *= */\1=/' "$VICERC"
 }
 
 while true; do
