@@ -35,10 +35,18 @@ set_bash_profile_emulator() {
 get_vicerc_section() {
     local emu="$1"
     case "$emu" in
-        x64sc) echo "C64SC" ;;
-        x64)   echo "C64" ;;
-        # Add more mappings as needed
-        *)     echo "" ;;
+        x64)      echo "C64" ;;
+        x64sc)    echo "C64SC" ;;
+        x128)     echo "C128" ;;
+        xvic)     echo "VIC20" ;;
+        xpet)     echo "PET" ;;
+        xplus4)   echo "PLUS4" ;;
+        xcbm2)    echo "CBM2" ;;
+        xcbm5x0)  echo "CBM5x0" ;;
+        xscpu64)  echo "SCPU64" ;;
+        x64dtv)   echo "C64DTV" ;;
+        vsid)     echo "VSID" ;;
+        *)        echo "" ;;
     esac
 }
 
