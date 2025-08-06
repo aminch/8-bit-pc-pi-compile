@@ -32,62 +32,69 @@ set_bash_profile_emulator() {
 	} >> "$HOME/.bash_profile"
 }
 
-get_joyport_setup() {
-    local jd1 jd2 jp1
-    jd1=$(awk -F= '/^JoyDevice1=/{print $2}' "$VICERC")
-    jd2=$(awk -F= '/^JoyDevice2=/{print $2}' "$VICERC")
-    jp1=$(awk -F= '/^JoyPort1Device=/{print $2}' "$VICERC")
+get_vicerc_section() {
+    local emu="$1"
+    case "$emu" in
+        x64sc) echo "C64SC" ;;
+        x64)   echo "C64" ;;
+        # Add more mappings as needed
+        *)     echo "" ;;
+    esac
+}
 
-    if [ "${jd1:-0}" -ge 4 ] && [ "${jd2:-0}" -ge 4 ]; then
+get_joyport_setup() {
+    local emu section jd1 jd2 jp1
+    emu=$(get_current_bash_profile_emulator)
+    section=$(get_vicerc_section "$emu")
+    [ -z "$section" ] && echo "Unknown" && return
+
+    jd1=$(crudini --get "$VICERC" "$section" JoyDevice1 2>/dev/null || echo 0)
+    jd2=$(crudini --get "$VICERC" "$section" JoyDevice2 2>/dev/null || echo 0)
+    jp1=$(crudini --get "$VICERC" "$section" JoyPort1Device 2>/dev/null || echo 0)
+
+    if [ "$jd1" -ge 4 ] && [ "$jd2" -ge 4 ]; then
         echo "J1-J2 USB"
-    elif [ "$jp1" = 3 ] && [ "${jd2:-0}" -ge 4 ]; then
+    elif [ "$jp1" = "3" ] && [ "$jd2" -ge 4 ]; then
         echo "M1-J2 USB"
     elif [ "$jd1" = "2" ] && [ "$jd2" = "3" ]; then
         echo "J1-J2 GPIO"
-    elif [ "$jp1" = 3 ] && [ "$jd2" = "3" ]; then
+    elif [ "$jp1" = "3" ] && [ "$jd2" = "3" ]; then
         echo "M1-J2 USB/GPIO"
     else
         echo "Unknown"
     fi
 }
 
-set_or_add_config() {
-    local key="$1"
-    local value="$2"
-    local file="$3"
-
-    if grep -q "^$key=" "$file"; then
-        sed -i "s/^$key=.*/$key=$value/" "$file"
-    else
-        echo "$key=$value" >> "$file"
-    fi
-}
-
 set_joyport_setup() {
+    local emu section
+    emu=$(get_current_bash_profile_emulator)
+    section=$(get_vicerc_section "$emu")
+    [ -z "$section" ] && return
+
     case "$1" in
         "J1-J2 USB")
-            sed -i '/^JoyPort1Device=/d' "$VICERC"
-            sed -i '/^JoyPort2Device=/d' "$VICERC"
-            set_or_add_config JoyDevice1 4 "$VICERC"
-            set_or_add_config JoyDevice2 4 "$VICERC"
+            crudini --del "$VICERC" "$section" JoyPort1Device
+            crudini --del "$VICERC" "$section" JoyPort2Device
+            crudini --set "$VICERC" "$section" JoyDevice1 4
+            crudini --set "$VICERC" "$section" JoyDevice2 4
             ;;
         "M1-J2 USB")
-            set_or_add_config JoyPort1Device 3 "$VICERC"
-            sed -i '/^JoyPort2Device=/d' "$VICERC"
-            sed -i '/^JoyDevice1=/d' "$VICERC"
-            set_or_add_config JoyDevice2 4 "$VICERC"
+            crudini --set "$VICERC" "$section" JoyPort1Device 3
+            crudini --del "$VICERC" "$section" JoyPort2Device
+            crudini --del "$VICERC" "$section" JoyDevice1
+            crudini --set "$VICERC" "$section" JoyDevice2 4
             ;;
         "J1-J2 GPIO")
-            sed -i '/^JoyPort1Device=/d' "$VICERC"
-            sed -i '/^JoyPort2Device=/d' "$VICERC"
-            set_or_add_config JoyDevice1 2 "$VICERC"
-            set_or_add_config JoyDevice2 3 "$VICERC"
+            crudini --del "$VICERC" "$section" JoyPort1Device
+            crudini --del "$VICERC" "$section" JoyPort2Device
+            crudini --set "$VICERC" "$section" JoyDevice1 2
+            crudini --set "$VICERC" "$section" JoyDevice2 3
             ;;
         "M1-J2 USB/GPIO")
-            set_or_add_config JoyPort1Device 3 "$VICERC"
-            sed -i '/^JoyPort2Device=/d' "$VICERC"
-            sed -i '/^JoyDevice1=/d' "$VICERC"
-            set_or_add_config JoyDevice2 3 "$VICERC"
+            crudini --set "$VICERC" "$section" JoyPort1Device 3
+            crudini --del "$VICERC" "$section" JoyPort2Device
+            crudini --del "$VICERC" "$section" JoyDevice1
+            crudini --set "$VICERC" "$section" JoyDevice2 3
             ;;
     esac
 }

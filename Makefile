@@ -19,7 +19,7 @@ endif
 
 # OS support dependencies (audio, video, system libraries)
 OS_DEPS = \
-	pulseaudio alsa-tools
+	pulseaudio alsa-tools crudini
 
 # Build dependencies (compilers, tools, build system)
 BUILD_DEPS = \
