@@ -40,7 +40,7 @@ get_joyport_setup() {
 
     if [ "${jd1:-0}" -ge 4 ] && [ "${jd2:-0}" -ge 4 ]; then
         echo "J1-J2 USB"
-    elif [ "$jp1" = 3 ]] && [ "${jd2:-0}" -ge 4 ]; then
+    elif [ "$jp1" = 3 ] && [ "${jd2:-0}" -ge 4 ]; then
         echo "M1-J2 USB"
     elif [ "$jd1" = "2" ] && [ "$jd2" = "3" ]; then
         echo "J1-J2 GPIO"
@@ -94,6 +94,7 @@ set_joyport_setup() {
 
 while true; do
 	CURRENT_EMU=$(get_current_bash_profile_emulator)
+	JOYPORT_SETUP=$(get_joyport_setup)	
 	CHOICE=$(whiptail --title "VICE Pi Menu" \
 		--ok-button "Select" --cancel-button "Exit" \
 		--menu "Choose an option:" 24 80 12 \
