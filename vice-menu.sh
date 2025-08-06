@@ -130,9 +130,10 @@ while true; do
 
 	case $CHOICE in
 		1)
-			EMU=$(whiptail --title "Select Emulator" --menu "Choose emulator to launch:" 15 50 2 \
-				"x64" "C64 emulator (fast, Pi400)" \
-				"x64sc" "C64 emulator (cycle exact, Pi500)" 3>&1 1>&2 2>&3)
+			EMU=$(whiptail --title "Select Emulator" --default-item "${CURRENT_EMU:-x64}" \
+					--menu "Choose emulator to launch:" 15 50 2 \
+					"x64" "C64 emulator (fast, Pi400)" \
+					"x64sc" "C64 emulator (cycle exact, Pi500)" 3>&1 1>&2 2>&3)
 			if [ -n "$EMU" ]; then
 				set_bash_profile_emulator "$EMU"
 				# Immediately update CURRENT_EMU and JOYPORT_SETUP for the new selection
@@ -150,7 +151,8 @@ while true; do
 			fi
 			;;
         3)
-            JOY=$(whiptail --title "Select Joyport Setup" --menu "Choose joyport setup:" 15 70 4 \
+            JOY=$(whiptail --title "Select Joyport Setup" --default-item "${JOYPORT_SETUP:-J1-J2 USB}" \
+                --menu "Choose joyport setup:" 15 70 4 \
                 "J1-J2 USB" "Both joysticks on USB" \
                 "M1-J2 USB" "Mouse (port 1) on USB, Joystick (port 2) on USB" \
                 "J1-J2 GPIO" "Both joysticks on GPIO" \
