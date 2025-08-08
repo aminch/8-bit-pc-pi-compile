@@ -33,9 +33,9 @@ VICE_DEPS = \
 	libpng-dev libjpeg-dev portaudio19-dev \
 	libsdl2-image-dev libsdl2-dev libsdl2-2.0-0
 
-.PHONY: all deps download extract autogen configure build install update_config samba_setup autologin_pi autostart clean tools setup_vice_config copy_vice_config install_menu reboot
+.PHONY: all deps download extract autogen configure build install update_config samba_setup autologin_pi autostart clean tools setup_vice_config copy_vice_data install_menu reboot
 
-all: deps autologin_pi download extract autogen configure build install update_config samba_setup autostart tools setup_vice_config copy_vice_config install_menu reboot
+all: deps autologin_pi download extract autogen configure build install update_config samba_setup autostart tools setup_vice_config copy_vice_data install_menu reboot
 
 deps:
 	sudo apt update -y
@@ -135,7 +135,7 @@ setup_vice_config:
 	cp sdl-vicerc $$HOME/.config/vice/
 	@echo "Default VICE config (sdl-vicerc) copied to $$HOME/.config/vice/"
 
-copy_vice_config:
+copy_vice_data:
 	mkdir -p $(VICE_SHARE_DIR)/data/C64
 	cp -rf $(PWD)/data/C64/* $(VICE_SHARE_DIR)/data/C64/
 	@echo "Copied all data files from $(PWD)/data/C64/* to $(VICE_SHARE_DIR)/data/C64/"
