@@ -3,6 +3,7 @@
 # Vice install dir
 VICE_VERSION="3.9"
 VICE_INSTALL_DIR=$HOME/vice-$VICE_VERSION
+VICE_SHARE_DATA_DIR=$HOME/vice-share/data
 
 # Path to this scripts directory
 DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
@@ -11,25 +12,25 @@ DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 VICERC="$HOME/.config/vice/sdl-vicerc"
 
 get_current_bash_profile_emulator() {
-	grep "/vice-${VICE_VERSION}/bin/x" "$HOME/.bash_profile" 2>/dev/null | grep -E 'x64sc|x64' | awk -F'/' '{print $NF}'
+    grep "/vice-${VICE_VERSION}/bin/x" "$HOME/.bash_profile" 2>/dev/null | grep -E 'x64sc|x64' | awk -F'/' '{print $NF}'
 }
 
 #echo "[DEBUG] Current emulator in .bash_profile: $(get_current_bash_profile_emulator)"
 
 set_bash_profile_emulator() {
-	local emulator="$1"
-	# Create .bash_profile if it doesn't exist
-	[ -f "$HOME/.bash_profile" ] || touch "$HOME/.bash_profile"
-	# Remove old block
-	sed -i '/# VICE AUTOSTART START/,/# VICE AUTOSTART END/d' "$HOME/.bash_profile"
-	# Add new block
-	{
-		echo "# VICE AUTOSTART START"
-		echo 'if [ -z "$SSH_CONNECTION" ]; then'
-		echo "  $VICE_INSTALL_DIR/bin/$emulator"
-		echo "fi"
-		echo "# VICE AUTOSTART END"
-	} >> "$HOME/.bash_profile"
+    local emulator="$1"
+    # Create .bash_profile if it doesn't exist
+    [ -f "$HOME/.bash_profile" ] || touch "$HOME/.bash_profile"
+    # Remove old block
+    sed -i '/# VICE AUTOSTART START/,/# VICE AUTOSTART END/d' "$HOME/.bash_profile"
+    # Add new block
+    {
+        echo "# VICE AUTOSTART START"
+        echo 'if [ -z "$SSH_CONNECTION" ]; then'
+        echo "  $VICE_INSTALL_DIR/bin/$emulator"
+        echo "fi"
+        echo "# VICE AUTOSTART END"
+    } >> "$HOME/.bash_profile"
 }
 
 get_vicerc_section() {
@@ -48,6 +49,51 @@ get_vicerc_section() {
         vsid)     echo "VSID" ;;
         *)        echo "" ;;
     esac
+}
+
+get_keyboard_layout() {
+    local emu section keymap_file
+    emu=$(get_current_bash_profile_emulator)
+    section=$(get_vicerc_section "$emu")
+    [ -z "$section" ] && echo "Unknown" && return
+
+    keymap_file=$(crudini --get "$VICERC" "$section" KeymapUserSymFile 2>/dev/null || echo "")
+
+    case "$keymap_file" in
+        *sdl_sym_uk_pi_4-500_bmc64.vkm) echo "Pi400/Pi500 UK" ;;
+        *sdl_sym_us_pi_4-500_bmc64.vkm) echo "Pi400/Pi500 US" ;;
+        *sdl_sym_no_pi_4-500_bmc64.vkm) echo "Pi400/Pi500 NO" ;;
+        *sdl_sym_c64p_bmc64.vkm) echo "C64P - Original C64" ;;
+        *) echo "Unknown" ;;
+    esac
+}
+
+set_keyboard_layout() {
+    local emu section
+    emu=$(get_current_bash_profile_emulator)
+    section=$(get_vicerc_section "$emu")
+    [ -z "$section" ] && return
+
+    # Always set KeymapIndex to 2 (Symbolic User keymap)
+    crudini --set "$VICERC" "$section" KeymapIndex 2
+
+    case "$1" in
+        "Pi400/Pi500 UK")
+            crudini --set "$VICERC" "$section" KeymapUserSymFile "$VICE_SHARE_DATA_DIR/C64/sdl_sym_uk_pi_4-500_bmc64.vkm"
+            ;;
+        "Pi400/Pi500 US")
+            crudini --set "$VICERC" "$section" KeymapUserSymFile "$VICE_SHARE_DATA_DIR/C64/sdl_sym_us_pi_4-500_bmc64.vkm"
+            ;;
+        "Pi400/Pi500 NO")
+            crudini --set "$VICERC" "$section" KeymapUserSymFile "$VICE_SHARE_DATA_DIR/C64/sdl_sym_no_pi_4-500_bmc64.vkm"
+            ;;
+        "C64P - Original C64")
+            crudini --set "$VICERC" "$section" KeymapUserSymFile "$VICE_SHARE_DATA_DIR/C64/sdl_sym_c64p_bmc64.vkm"
+            ;;
+    esac
+
+    # Remove spaces around = for all settings in the file
+    sed -i 's/^\([A-Za-z0-9_]\+\) *= */\1=/' "$VICERC"
 }
 
 get_joyport_setup() {
@@ -106,51 +152,66 @@ set_joyport_setup() {
             ;;
     esac
 
-	# Remove spaces around = for all settings in the file
-	sed -i 's/^\([A-Za-z0-9_]\+\) *= */\1=/' "$VICERC"
+    # Remove spaces around = for all settings in the file
+    sed -i 's/^\([A-Za-z0-9_]\+\) *= */\1=/' "$VICERC"
 }
 
 while true; do
     CURRENT_EMU=$(get_current_bash_profile_emulator)
+    KEYBOARD_LAYOUT=$(get_keyboard_layout)
     JOYPORT_SETUP=$(get_joyport_setup)
     CHOICE=$(whiptail --title "VICE Pi Menu" \
         --ok-button "Select" --cancel-button "Exit" \
-        --menu "Choose an option:" 24 80 12 \
+        --menu "Choose an option:" 24 80 13 \
         "1" "Set emulator to launch (current: ${CURRENT_EMU:-none})" \
         "2" "Launch current emulator" \
-        "3" "Select joyport setup (current: ${JOYPORT_SETUP})" \
-		"4" "Launch Midnight Commander file manager" \
-		"5" "Start Samba (Windows file sharing)" \
-        "6" "Stop Samba (Windows file sharing)" \
-        "7" "Update vice-menu & Makefile" \
-        "8" "Launch raspi-config" \
-		"9" "Set Pi to auto-login without a password" \
-        "10" "Reboot Raspberry Pi" \
-        "11" "Shutdown Raspberry Pi" 3>&1 1>&2 2>&3)
+        "3" "Select Pi keyboard layout (current: ${KEYBOARD_LAYOUT})" \
+        "4" "Select joyport setup (current: ${JOYPORT_SETUP})" \
+        "5" "Launch Midnight Commander file manager" \
+        "6" "Start Samba (Windows file sharing)" \
+        "7" "Stop Samba (Windows file sharing)" \
+        "8" "Update vice-menu & Makefile" \
+        "9" "Launch raspi-config" \
+        "10" "Set Pi to auto-login without a password" \
+        "11" "Reboot Raspberry Pi" \
+        "12" "Shutdown Raspberry Pi" 3>&1 1>&2 2>&3)
 
-	case $CHOICE in
-		1)
-			EMU=$(whiptail --title "Select Emulator" --default-item "${CURRENT_EMU:-x64}" \
-					--menu "Choose emulator to launch:" 15 50 2 \
-					"x64" "C64 emulator (fast, Pi400)" \
-					"x64sc" "C64 emulator (cycle exact, Pi500)" 3>&1 1>&2 2>&3)
-			if [ -n "$EMU" ]; then
-				set_bash_profile_emulator "$EMU"
-				# Immediately update CURRENT_EMU and JOYPORT_SETUP for the new selection
-				CURRENT_EMU="$EMU"
-				JOYPORT_SETUP=$(get_joyport_setup)
-				whiptail --msgbox "Set emulator to $EMU in ~/.bash_profile" 8 40
-			fi
-			;;
-		2)
-			EMU=$(get_current_bash_profile_emulator)
-			if [ -n "$EMU" ]; then
-				"$VICE_INSTALL_DIR/bin/$EMU"
-			else
-				whiptail --msgbox "No emulator set in ~/.bash_profile" 8 40
-			fi
-			;;
+    case $CHOICE in
+        1)
+            EMU=$(whiptail --title "Select Emulator" --default-item "${CURRENT_EMU:-x64}" \
+                    --menu "Choose emulator to launch:" 15 50 2 \
+                    "x64" "C64 emulator (fast, Pi400)" \
+                    "x64sc" "C64 emulator (cycle exact, Pi500)" 3>&1 1>&2 2>&3)
+            if [ -n "$EMU" ]; then
+                set_bash_profile_emulator "$EMU"
+                # Immediately update variables for the new selection
+                CURRENT_EMU="$EMU"
+                KEYBOARD_LAYOUT=$(get_keyboard_layout)
+                JOYPORT_SETUP=$(get_joyport_setup)
+                whiptail --msgbox "Set emulator to $EMU in ~/.bash_profile" 8 40
+            fi
+            ;;
+        2)
+            EMU=$(get_current_bash_profile_emulator)
+            if [ -n "$EMU" ]; then
+                "$VICE_INSTALL_DIR/bin/$EMU"
+            else
+                whiptail --msgbox "No emulator set in ~/.bash_profile" 8 40
+            fi
+            ;;
         3)
+            KEYB=$(whiptail --title "Select Pi Keyboard Layout" --default-item "${KEYBOARD_LAYOUT:-Pi400/Pi500 UK}" \
+                --menu "Choose keyboard layout:" 15 70 4 \
+                "Pi400/Pi500 UK" "UK keyboard layout for Pi400/Pi500" \
+                "Pi400/Pi500 US" "US keyboard layout for Pi400/Pi500" \
+                "Pi400/Pi500 NO" "Norwegian keyboard layout for Pi400/Pi500" \
+                "C64P - Original C64" "Original C64 keyboard layout" 3>&1 1>&2 2>&3)
+            if [ -n "$KEYB" ]; then
+                set_keyboard_layout "$KEYB"
+                whiptail --msgbox "Keyboard layout set to $KEYB in sdl-vicerc" 8 50
+            fi
+            ;;
+        4)
             JOY=$(whiptail --title "Select Joyport Setup" --default-item "${JOYPORT_SETUP:-J1-J2 USB}" \
                 --menu "Choose joyport setup:" 15 70 4 \
                 "J1-J2 USB" "Both joysticks on USB" \
@@ -162,18 +223,18 @@ while true; do
                 whiptail --msgbox "Joyports set to $JOY in sdl-vicerc" 8 40
             fi
             ;;
-		4)
-			mc
-			;;
-		5)
-			sudo systemctl start smbd
-			whiptail --msgbox "Samba started." 8 40
-			;;
-		6)
-			sudo systemctl stop smbd
-			whiptail --msgbox "Samba stopped." 8 40
-			;;
-		7)
+        5)
+            mc
+            ;;
+        6)
+            sudo systemctl start smbd
+            whiptail --msgbox "Samba started." 8 40
+            ;;
+        7)
+            sudo systemctl stop smbd
+            whiptail --msgbox "Samba stopped." 8 40
+            ;;
+        8)
             if whiptail --yesno "Do you want to update this script and Makefile from the git repository?" 10 60; then
                 if git -C "$DIR" pull 2> >(GITERR=$(cat); typeset -p GITERR >&2); then
                     whiptail --msgbox "Update complete. Restarting menu..." 8 40
@@ -183,25 +244,25 @@ while true; do
                 fi
             fi
             ;;
-        8)
+        9)
             sudo raspi-config
             ;;
-		9)
-			make -C "$DIR" autologin_pi
-			whiptail --msgbox "Auto-login setup complete." 8 40
-			;;
         10)
+            make -C "$DIR" autologin_pi
+            whiptail --msgbox "Auto-login setup complete." 8 40
+            ;;
+        11)
             if whiptail --yesno "Are you sure you want to reboot the Raspberry Pi?" 8 40; then
                 sudo reboot
             fi
             ;;
-        11)
+        12)
             if whiptail --yesno "Are you sure you want to shutdown the Raspberry Pi?" 8 40; then
                 sudo shutdown now
             fi
             ;;
-		*)
-			break
-			;;
-	esac
+        *)
+            break
+            ;;
+    esac
 done
