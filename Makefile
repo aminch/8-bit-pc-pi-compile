@@ -2,6 +2,7 @@ VICE_VERSION := 3.9
 VICE_SRC_DIR := $(HOME)/vice-src
 VICE_BUILD_DIR := $(VICE_SRC_DIR)/vice-$(VICE_VERSION)
 VICE_INSTALL_DIR := $(HOME)/vice-$(VICE_VERSION)
+VICE_SHARE_DIR := $(HOME)/vice-share
 VICE_APP := x64sc
 
 # Detect Pi 4 family and override variables as needed
@@ -32,9 +33,9 @@ VICE_DEPS = \
 	libpng-dev libjpeg-dev portaudio19-dev \
 	libsdl2-image-dev libsdl2-dev libsdl2-2.0-0
 
-.PHONY: all deps download extract autogen configure build install update_config samba_setup autologin_pi autostart clean tools setup_vice_config install_menu reboot
+.PHONY: all deps download extract autogen configure build install update_config samba_setup autologin_pi autostart clean tools setup_vice_config copy_vice_config install_menu reboot
 
-all: deps autologin_pi download extract autogen configure build install update_config samba_setup autostart tools setup_vice_config install_menu reboot
+all: deps autologin_pi download extract autogen configure build install update_config samba_setup autostart tools setup_vice_config copy_vice_config install_menu reboot
 
 deps:
 	sudo apt update -y
@@ -101,17 +102,17 @@ update_config:
 samba_setup:
 	sudo apt-get update
 	sudo apt-get install -y samba
-	mkdir -p ~/vice-share/disks ~/vice-share/roms
+	mkdir -p $(VICE_SHARE_DIR)/disks $(VICE_SHARE_DIR)/roms $(VICE_SHARE_DIR)/data
 	# Remove any existing [VICE] section
 	sudo sed -i '/^\[VICE\]/,/^$$/d' /etc/samba/smb.conf
 	# Add the new [VICE] section at the end
-	echo "[VICE]\n   path = $$HOME/vice-share\n   browseable = yes\n   read only = no\n   guest ok = no\n   create mask = 0775\n   directory mask = 0775" | sudo tee -a /etc/samba/smb.conf
-	chmod 775 ~/vice-share ~/vice-share/disks ~/vice-share/roms
+	echo "[VICE]\n   path = $(VICE_SHARE_DIR)\n   browseable = yes\n   read only = no\n   guest ok = no\n   create mask = 0775\n   directory mask = 0775" | sudo tee -a /etc/samba/smb.conf
+	chmod 775 $(VICE_SHARE_DIR) $(VICE_SHARE_DIR)/disks $(VICE_SHARE_DIR)/roms $(VICE_SHARE_DIR)/data
 	@echo "You will need to set a Samba password for the 'pi' user:"
 	sudo smbpasswd -a pi
 	sudo systemctl restart smbd
 	@ip_addr=$$(hostname -I | awk '{print $$1}'); \
-	echo "Samba share 'VICE' is set up at $$HOME/vice-share with 'disks' and 'roms' subfolders. Access it from another computer using: smb://pi@$${ip_addr}/VICE (login as user 'pi')"
+	echo "Samba share 'VICE' is set up at $(VICE_SHARE_DIR) with 'disks', 'roms', and 'data' subfolders. Access it from another computer using: smb://pi@$${ip_addr}/VICE (login as user 'pi')"
 
 autostart:
 	@echo "Configuring VICE autostart in ~/.bash_profile..."
@@ -133,9 +134,11 @@ setup_vice_config:
 	mkdir -p $$HOME/.config/vice
 	cp sdl-vicerc $$HOME/.config/vice/
 	@echo "Default VICE config (sdl-vicerc) copied to $$HOME/.config/vice/"
-	mkdir -p $(VICE_INSTALL_DIR)/share/vice/C64
-	cp -rf data/C64/* $(VICE_INSTALL_DIR)/share/vice/C64/
-	@echo "Copied data/C64/* to $(VICE_INSTALL_DIR)/share/vice/C64/"
+
+copy_vice_config:
+	mkdir -p $(VICE_SHARE_DIR)/data/C64
+	cp -rf $(PWD)/data/C64/* $(VICE_SHARE_DIR)/data/C64/
+	@echo "Copied all data files from $(PWD)/data/C64/* to $(VICE_SHARE_DIR)/data/C64/"
 
 install_menu:
 	@echo "Making vice-menu.sh executable..."
