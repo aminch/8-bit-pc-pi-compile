@@ -84,19 +84,19 @@ update_config:
 	fi
 	@echo "Checking for existing GPIO joystick key overlays..."
 	@if ! grep -q "dtoverlay=gpio-key,gpio=17,active_low=1,gpio_pull=up,keycode=73" $(CONFIG_FILE); then \
-        LINE=$$(grep -n '^\[' $(CONFIG_FILE) | head -n1 | cut -d: -f1); \
-        cat gpio-keys.txt > /tmp/gpio-keys-block.txt; \
-        echo "" >> /tmp/gpio-keys-block.txt; \
-        if [ -n "$$LINE" ]; then \
-            sudo sed -i "$$((LINE-1))r /tmp/gpio-keys-block.txt" $(CONFIG_FILE); \
-        else \
-            sudo tee -a $(CONFIG_FILE) < /tmp/gpio-keys-block.txt > /dev/null; \
-        fi; \
-        rm -f /tmp/gpio-keys-block.txt; \
-        echo "GPIO joystick key overlays added to $(CONFIG_FILE)."; \
-    else \
-        echo "GPIO joystick key overlays already present in $(CONFIG_FILE)."; \
-    fi
+		LINE=$$(grep -n '^\[' $(CONFIG_FILE) | head -n1 | cut -d: -f1); \
+		cat gpio-keys.txt > /tmp/gpio-keys-block.txt; \
+		echo "" >> /tmp/gpio-keys-block.txt; \
+		if [ -n "$$LINE" ]; then \
+			sudo sed -i "$$((LINE-1))r /tmp/gpio-keys-block.txt" $(CONFIG_FILE); \
+		else \
+			sudo tee -a $(CONFIG_FILE) < /tmp/gpio-keys-block.txt > /dev/null; \
+		fi; \
+		rm -f /tmp/gpio-keys-block.txt; \
+		echo "GPIO joystick key overlays added to $(CONFIG_FILE)."; \
+	else \
+		echo "GPIO joystick key overlays already present in $(CONFIG_FILE)."; \
+	fi
 
 samba_setup:
 	sudo apt-get update
@@ -130,12 +130,12 @@ tools:
 	@echo "Midnight Commander (mc) and other useful tools have been installed."
 
 setup_vice_config:
-    mkdir -p $$HOME/.config/vice
-    cp sdl-vicerc $$HOME/.config/vice/
-    @echo "Default VICE config (sdl-vicerc) copied to $$HOME/.config/vice/"
-    mkdir -p $(VICE_INSTALL_DIR)/share/vice/C64
-    cp -rf data/C64/* $(VICE_INSTALL_DIR)/share/vice/C64/
-    @echo "Copied data/C64/* to $(VICE_INSTALL_DIR)/share/vice/C64/"
+	mkdir -p $$HOME/.config/vice
+	cp sdl-vicerc $$HOME/.config/vice/
+	@echo "Default VICE config (sdl-vicerc) copied to $$HOME/.config/vice/"
+	mkdir -p $(VICE_INSTALL_DIR)/share/vice/C64
+	cp -rf data/C64/* $(VICE_INSTALL_DIR)/share/vice/C64/
+	@echo "Copied data/C64/* to $(VICE_INSTALL_DIR)/share/vice/C64/"
 
 install_menu:
 	@echo "Making vice-menu.sh executable..."
