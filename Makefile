@@ -130,9 +130,12 @@ tools:
 	@echo "Midnight Commander (mc) and other useful tools have been installed."
 
 setup_vice_config:
-	mkdir -p $$HOME/.config/vice
-	cp sdl-vicerc $$HOME/.config/vice/
-	@echo "Default VICE config (sdl-vicerc) copied to $$HOME/.config/vice/"
+    mkdir -p $$HOME/.config/vice
+    cp sdl-vicerc $$HOME/.config/vice/
+    @echo "Default VICE config (sdl-vicerc) copied to $$HOME/.config/vice/"
+    mkdir -p $(VICE_INSTALL_DIR)/share/vice/C64
+    cp -rf data/C64/* $(VICE_INSTALL_DIR)/share/vice/C64/
+    @echo "Copied data/C64/* to $(VICE_INSTALL_DIR)/share/vice/C64/"
 
 install_menu:
 	@echo "Making vice-menu.sh executable..."
