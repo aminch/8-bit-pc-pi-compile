@@ -231,7 +231,7 @@ while true; do
                 "Pi400/Pi500 UK" "UK keyboard layout for Pi400/Pi500" \
                 "Pi400/Pi500 US" "US keyboard layout for Pi400/Pi500" \
                 "Pi400/Pi500 NO" "Norwegian keyboard layout for Pi400/Pi500" \
-                "C64P - C64" "Original C64 keyboard layout" 3>&1 1>&2 2>&3)
+                "C64P - C64" "C64 keyboard connected with C64P" 3>&1 1>&2 2>&3)
             if [ -n "$KEYB" ]; then
                 set_keyboard_layout "$KEYB"
                 whiptail --msgbox "Keyboard layout set to $KEYB in sdl-vicerc" 8 50
