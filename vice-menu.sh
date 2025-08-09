@@ -61,19 +61,28 @@ get_keyboard_layout() {
     keymap_file=$(crudini --get "$VICERC" "$section" KeymapUserSymFile 2>/dev/null || echo "")
     keymap_pos_file=$(crudini --get "$VICERC" "$section" KeymapUserPosFile 2>/dev/null || echo "")
 
-    # Check if it's using positional keymap (index 3) with sdl_c64p.vkm for C64P
-    if [ "$keymap_index" = "3" ] && [ "$keymap_pos_file" = "sdl_c64p.vkm" ]; then
-        echo "C64P - Original C64"
+    # Check positional keymap files
+    if [ "$keymap_index" = "3" ]; then
+        case "$keymap_pos_file" in
+            *sdl_c64p.vkm) echo "C64P - C64" ;;
+            *) echo "Unknown" ;;
+        esac
         return
     fi
 
     # Check symbolic keymap files
-    case "$keymap_file" in
-        *sdl_sym_uk_pi_4-500_bmc64.vkm) echo "Pi400/Pi500 UK" ;;
-        *sdl_sym_us_pi_4-500_bmc64.vkm) echo "Pi400/Pi500 US" ;;
-        *sdl_sym_no_pi_4-500_bmc64.vkm) echo "Pi400/Pi500 NO" ;;
-        *) echo "Unknown" ;;
-    esac
+    if [ "$keymap_index" = "2" ]; then
+        case "$keymap_file" in
+            *sdl_sym_uk_pi_4-500_bmc64.vkm) echo "Pi400/Pi500 UK" ;;
+            *sdl_sym_us_pi_4-500_bmc64.vkm) echo "Pi400/Pi500 US" ;;
+            *sdl_sym_no_pi_4-500_bmc64.vkm) echo "Pi400/Pi500 NO" ;;
+            *sdl_c64p.vkm) echo "C64P - C64" ;;
+            *) echo "Unknown" ;;
+        esac
+        return
+    fi
+
+    echo "Unknown"
 }
 
 set_keyboard_layout() {
@@ -101,7 +110,7 @@ set_keyboard_layout() {
             # Set Raspberry Pi OS keyboard to Norwegian
             sudo raspi-config nonint do_configure_keyboard no
             ;;
-        "C64P - Original C64")
+        "C64P - C64")
             crudini --set "$VICERC" "$section" KeymapIndex 3
             crudini --set "$VICERC" "$section" KeymapUserPosFile "$VICE_SHARE_DATA_DIR/C64/sdl_c64p.vkm"
             # Set Raspberry Pi OS keyboard to US for C64P
@@ -222,7 +231,7 @@ while true; do
                 "Pi400/Pi500 UK" "UK keyboard layout for Pi400/Pi500" \
                 "Pi400/Pi500 US" "US keyboard layout for Pi400/Pi500" \
                 "Pi400/Pi500 NO" "Norwegian keyboard layout for Pi400/Pi500" \
-                "C64P - Original C64" "Original C64 keyboard layout" 3>&1 1>&2 2>&3)
+                "C64P - C64" "Original C64 keyboard layout" 3>&1 1>&2 2>&3)
             if [ -n "$KEYB" ]; then
                 set_keyboard_layout "$KEYB"
                 whiptail --msgbox "Keyboard layout set to $KEYB in sdl-vicerc" 8 50
