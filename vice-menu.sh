@@ -86,18 +86,26 @@ set_keyboard_layout() {
         "Pi400/Pi500 UK")
             crudini --set "$VICERC" "$section" KeymapIndex 2
             crudini --set "$VICERC" "$section" KeymapUserSymFile "$VICE_SHARE_DATA_DIR/C64/sdl_sym_uk_pi_4-500_bmc64.vkm"
+            # Set Raspberry Pi OS keyboard to UK
+            sudo raspi-config nonint do_configure_keyboard gb
             ;;
         "Pi400/Pi500 US")
             crudini --set "$VICERC" "$section" KeymapIndex 2
             crudini --set "$VICERC" "$section" KeymapUserSymFile "$VICE_SHARE_DATA_DIR/C64/sdl_sym_us_pi_4-500_bmc64.vkm"
+            # Set Raspberry Pi OS keyboard to US
+            sudo raspi-config nonint do_configure_keyboard us
             ;;
         "Pi400/Pi500 NO")
             crudini --set "$VICERC" "$section" KeymapIndex 2
             crudini --set "$VICERC" "$section" KeymapUserSymFile "$VICE_SHARE_DATA_DIR/C64/sdl_sym_no_pi_4-500_bmc64.vkm"
+            # Set Raspberry Pi OS keyboard to Norwegian
+            sudo raspi-config nonint do_configure_keyboard no
             ;;
         "C64P - Original C64")
             crudini --set "$VICERC" "$section" KeymapIndex 1
-            crudini --set "$VICERC" "$section" KeymapPosFile "sdl_c64p.vkm"
+            crudini --set "$VICERC" "$section" KeymapPosFile "$VICE_SHARE_DATA_DIR/C64/sdl_c64p.vkm"
+            # Set Raspberry Pi OS keyboard to US for C64P
+            sudo raspi-config nonint do_configure_keyboard us
             ;;
     esac
 
