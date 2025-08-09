@@ -52,18 +52,26 @@ get_vicerc_section() {
 }
 
 get_keyboard_layout() {
-    local emu section keymap_file
+    local emu section keymap_file keymap_index keymap_pos_file
     emu=$(get_current_bash_profile_emulator)
     section=$(get_vicerc_section "$emu")
     [ -z "$section" ] && echo "Unknown" && return
 
+    keymap_index=$(crudini --get "$VICERC" "$section" KeymapIndex 2>/dev/null || echo 0)
     keymap_file=$(crudini --get "$VICERC" "$section" KeymapUserSymFile 2>/dev/null || echo "")
+    keymap_pos_file=$(crudini --get "$VICERC" "$section" KeymapPosFile 2>/dev/null || echo "")
 
+    # Check if it's using positional keymap (index 1) with sdl_c64p.vkm for C64P
+    if [ "$keymap_index" = "1" ] && [ "$keymap_pos_file" = "sdl_c64p.vkm" ]; then
+        echo "C64P - Original C64"
+        return
+    fi
+
+    # Check symbolic keymap files
     case "$keymap_file" in
         *sdl_sym_uk_pi_4-500_bmc64.vkm) echo "Pi400/Pi500 UK" ;;
         *sdl_sym_us_pi_4-500_bmc64.vkm) echo "Pi400/Pi500 US" ;;
         *sdl_sym_no_pi_4-500_bmc64.vkm) echo "Pi400/Pi500 NO" ;;
-        *sdl_sym_c64p_bmc64.vkm) echo "C64P - Original C64" ;;
         *) echo "Unknown" ;;
     esac
 }
@@ -74,21 +82,22 @@ set_keyboard_layout() {
     section=$(get_vicerc_section "$emu")
     [ -z "$section" ] && return
 
-    # Always set KeymapIndex to 2 (Symbolic User keymap)
-    crudini --set "$VICERC" "$section" KeymapIndex 2
-
     case "$1" in
         "Pi400/Pi500 UK")
+            crudini --set "$VICERC" "$section" KeymapIndex 2
             crudini --set "$VICERC" "$section" KeymapUserSymFile "$VICE_SHARE_DATA_DIR/C64/sdl_sym_uk_pi_4-500_bmc64.vkm"
             ;;
         "Pi400/Pi500 US")
+            crudini --set "$VICERC" "$section" KeymapIndex 2
             crudini --set "$VICERC" "$section" KeymapUserSymFile "$VICE_SHARE_DATA_DIR/C64/sdl_sym_us_pi_4-500_bmc64.vkm"
             ;;
         "Pi400/Pi500 NO")
+            crudini --set "$VICERC" "$section" KeymapIndex 2
             crudini --set "$VICERC" "$section" KeymapUserSymFile "$VICE_SHARE_DATA_DIR/C64/sdl_sym_no_pi_4-500_bmc64.vkm"
             ;;
         "C64P - Original C64")
-            crudini --set "$VICERC" "$section" KeymapUserSymFile "$VICE_SHARE_DATA_DIR/C64/sdl_sym_c64p_bmc64.vkm"
+            crudini --set "$VICERC" "$section" KeymapIndex 1
+            crudini --set "$VICERC" "$section" KeymapPosFile "sdl_c64p.vkm"
             ;;
     esac
 
