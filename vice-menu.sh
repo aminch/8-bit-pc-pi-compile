@@ -189,8 +189,8 @@ while true; do
     CHOICE=$(whiptail --title "VICE Pi Menu" \
         --ok-button "Select" --cancel-button "Exit" \
         --menu "Choose an option:" 24 80 13 \
-        "1" "Set emulator to launch (current: ${CURRENT_EMU:-none})" \
-        "2" "Launch current emulator" \
+        "1" "Launch current emulator" \
+        "2" "Set emulator to launch (current: ${CURRENT_EMU:-none})" \
         "3" "Select Pi keyboard layout (current: ${KEYBOARD_LAYOUT})" \
         "4" "Select joyport setup (current: ${JOYPORT_SETUP})" \
         "5" "Launch Midnight Commander file manager" \
@@ -204,6 +204,14 @@ while true; do
 
     case $CHOICE in
         1)
+            EMU=$(get_current_bash_profile_emulator)
+            if [ -n "$EMU" ]; then
+                "$VICE_INSTALL_DIR/bin/$EMU"
+            else
+                whiptail --msgbox "No emulator set in ~/.bash_profile" 8 40
+            fi
+            ;;
+        2)
             EMU=$(whiptail --title "Select Emulator" --default-item "${CURRENT_EMU:-x64}" \
                     --menu "Choose emulator to launch:" 15 50 2 \
                     "x64" "C64 emulator (fast, Pi400)" \
@@ -215,14 +223,6 @@ while true; do
                 KEYBOARD_LAYOUT=$(get_keyboard_layout)
                 JOYPORT_SETUP=$(get_joyport_setup)
                 whiptail --msgbox "Set emulator to $EMU in ~/.bash_profile" 8 40
-            fi
-            ;;
-        2)
-            EMU=$(get_current_bash_profile_emulator)
-            if [ -n "$EMU" ]; then
-                "$VICE_INSTALL_DIR/bin/$EMU"
-            else
-                whiptail --msgbox "No emulator set in ~/.bash_profile" 8 40
             fi
             ;;
         3)
