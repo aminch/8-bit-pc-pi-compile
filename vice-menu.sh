@@ -61,8 +61,8 @@ get_keyboard_layout() {
     keymap_file=$(crudini --get "$VICERC" "$section" KeymapUserSymFile 2>/dev/null || echo "")
     keymap_pos_file=$(crudini --get "$VICERC" "$section" KeymapUserPosFile 2>/dev/null || echo "")
 
-    # Check if it's using positional keymap (index 1) with sdl_c64p.vkm for C64P
-    if [ "$keymap_index" = "1" ] && [ "$keymap_pos_file" = "sdl_c64p.vkm" ]; then
+    # Check if it's using positional keymap (index 3) with sdl_c64p.vkm for C64P
+    if [ "$keymap_index" = "3" ] && [ "$keymap_pos_file" = "sdl_c64p.vkm" ]; then
         echo "C64P - Original C64"
         return
     fi
@@ -102,7 +102,7 @@ set_keyboard_layout() {
             sudo raspi-config nonint do_configure_keyboard no
             ;;
         "C64P - Original C64")
-            crudini --set "$VICERC" "$section" KeymapIndex 1
+            crudini --set "$VICERC" "$section" KeymapIndex 3
             crudini --set "$VICERC" "$section" KeymapUserPosFile "$VICE_SHARE_DATA_DIR/C64/sdl_c64p.vkm"
             # Set Raspberry Pi OS keyboard to US for C64P
             sudo raspi-config nonint do_configure_keyboard us
