@@ -41,8 +41,9 @@ confirm() { log_info "CONFIRM?: $1"; whiptail --backtitle "$BACKTITLE" --yesno "
 get_autostart_emulator() {
   # Look inside RETROPC (new) or VICE (legacy) AUTOSTART block and extract executable name
   local line exe
-  line=$(awk '/# (RETROPC |VICE )?AUTOSTART START/{f=1;next} /# (RETROPC |VICE )?AUTOSTART END/{f=0} f && /\/bin\//{print}' "$HOME/.bash_profile" 2>/dev/null | tail -n1)
-  exe=$(echo "$line" | awk '{print $NF}' | awk -F'/' '{print $NF}')
+  # Force fresh file read and more robust parsing
+  line=$(grep -A 10 "# \(RETROPC\|VICE\) AUTOSTART START" "$HOME/.bash_profile" 2>/dev/null | grep -B 10 "# \(RETROPC\|VICE\) AUTOSTART END" | grep "/bin/" | tail -n1)
+  exe=$(echo "$line" | sed 's/.*\///' | awk '{print $1}')
   [ -n "$exe" ] && echo "$exe" || echo ""
 }
 
