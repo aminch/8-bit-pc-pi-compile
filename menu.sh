@@ -47,25 +47,45 @@ main_menu() {
     case $CHOICE in
       1)
         if [ -n "$current" ]; then
-          # Attempt to locate executable in known locations
-          if command -v "$current" >/dev/null 2>&1; then "$current"; elif [ -x "$HOME/vice-3.9/bin/$current" ]; then "$HOME/vice-3.9/bin/$current"; else msg "Emulator '$current' not found in PATH or expected directory." 8 60; fi
+          # Resolve possible locations for both VICE and Atari emulators
+          # Stored autostart is executable name only, reconstruct candidate paths
+          declare -a CANDIDATES
+          CANDIDATES+=("$current") # if already in PATH
+          CANDIDATES+=("$HOME/vice-3.9/bin/$current")
+          CANDIDATES+=("$HOME/atari800/bin/$current")
+          # In case user previously stored full path (older block), include it directly if it exists
+          if [[ "$current" == */* && -x "$current" ]]; then
+            CANDIDATES=("$current")
+          fi
+          found=""
+          for c in "${CANDIDATES[@]}"; do
+            if [ -x "$c" ]; then
+              found="$c"; break
+            fi
+          done
+          if [ -n "$found" ]; then
+            log_info "Launching emulator: $found"
+            "$found"
+          else
+            msg "Emulator '$current' not found in PATH or expected directories." 8 70
+          fi
         else
           msg "No emulator set to autostart." 8 50
         fi ;;
       2)
-        local EMU SEL exec_path
+    local SEL exec_path
         SEL=$(whiptail --title "Select Autostart Emulator" --backtitle "$BACKTITLE" --menu "Choose emulator:" 15 60 3 \
           "x64" "VICE C64 (fast, Pi400)" \
           "x64sc" "VICE C64 (cycle exact, Pi500)" \
-          "atari800" "Atari 8-bit (placeholder)" 3>&1 1>&2 2>&3) || true
+          "atari800" "Atari 8-bit" 3>&1 1>&2 2>&3) || true
         if [ -n "${SEL:-}" ]; then
           case "$SEL" in
             x64|x64sc) exec_path="$HOME/vice-3.9/bin/$SEL" ;;
-            atari800) exec_path="/usr/bin/atari800" ;;
+            atari800) exec_path="$HOME/atari800/bin/$SEL" ;;
           esac
           if [ -x "$exec_path" ]; then
-            set_autostart_emulator "$exec_path"
-            msg "Autostart emulator set to $SEL" 8 40
+      set_autostart_emulator "$exec_path"
+      msg "Autostart emulator set to $SEL" 8 40
           else
             msg "Executable for $SEL not found at $exec_path" 8 60
           fi
