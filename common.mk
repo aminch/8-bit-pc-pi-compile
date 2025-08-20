@@ -20,15 +20,15 @@ deps: ## Install common system & build dependencies
 samba_setup: ## Install & configure Samba share at $(SHARE_DIR)
 	sudo apt-get install -y samba
 	mkdir -p $(SHARE_DIR)/disks $(SHARE_DIR)/roms $(SHARE_DIR)/data
-	# Remove existing VICE share block
-	sudo sed -i '/^\[VICE\]/,/^$$/d' /etc/samba/smb.conf
+	# Remove existing SHARE block
+	sudo sed -i '/^\[SHARE\]/,/^$$/d' /etc/samba/smb.conf
 	# Append new block
-	echo "[VICE]\n   path = $(SHARE_DIR)\n   browseable = yes\n   read only = no\n   guest ok = no\n   create mask = 0775\n   directory mask = 0775" | sudo tee -a /etc/samba/smb.conf
+	echo "[SHARE]\n   path = $(SHARE_DIR)\n   browseable = yes\n   read only = no\n   guest ok = no\n   create mask = 0775\n   directory mask = 0775" | sudo tee -a /etc/samba/smb.conf
 	chmod 775 $(SHARE_DIR) $(SHARE_DIR)/disks $(SHARE_DIR)/roms $(SHARE_DIR)/data
 	@echo "Set a Samba password for user 'pi' if prompted."
 	sudo smbpasswd -a pi || true
 	sudo systemctl restart smbd
-	@ip_addr=$$(hostname -I | awk '{print $$1}'); echo "Samba share at smb://pi@$$ip_addr/VICE"
+	@ip_addr=$$(hostname -I | awk '{print $$1}'); echo "Samba share at smb://pi@$$ip_addr/SHARE"
 
 autologin_pi: ## Enable console auto-login for current user (Raspberry Pi OS)
 	sudo raspi-config nonint do_boot_behaviour B2
