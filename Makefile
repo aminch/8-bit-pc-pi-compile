@@ -156,11 +156,13 @@ copy_vice_data:
 	@echo "Copied all data files from $(PWD)/data/C64/* to $(VICE_SHARE_DIR)/data/C64/"
 
 install_menu:
-	@echo "Making vice-menu.sh executable..."
-	chmod +x $(PWD)/vice-menu.sh
-	@echo "Installing vice-menu.sh symlink to /usr/local/bin/vice-menu..."
-	sudo ln -sf $(PWD)/vice-menu.sh /usr/local/bin/vice-menu
-	@echo "You can now run 'vice-menu' from anywhere."
+	@echo "Making menu.sh executable..."
+	chmod +x $(PWD)/menu.sh
+	@echo "Installing 'menu' symlink..."
+	sudo ln -sf $(PWD)/menu.sh /usr/local/bin/menu
+	@echo "Removing legacy symlinks (vice-menu) if they exist..."
+	@if [ -L /usr/local/bin/vice-menu ]; then sudo rm -f /usr/local/bin/vice-menu; fi
+	@echo "Run 'menu' to launch the 8-bit PC Menu."
 
 reboot:	
 	@bash -c 'read -n 1 -s -r -p "Press any key to reboot to finalise set up..."; echo; sudo reboot'
