@@ -1,5 +1,5 @@
 # ---------------- VICE build / install layer ----------------
-.PHONY: vice_all vice_deps vice_download vice_extract vice_patch vice_autogen vice_configure vice_build vice_install vice_update_config setup_vice_config copy_vice_data
+.PHONY: vice_all vice_body vice_deps vice_download vice_extract vice_patch vice_autogen vice_configure vice_build vice_install vice_update_config setup_vice_config copy_vice_data
 
 VICE_VERSION := 3.9
 VICE_SRC_DIR := $(HOME)/vice-src
@@ -88,5 +88,10 @@ copy_vice_data: ## Copy supplied data files into share
 	cp -rf $(PWD)/data/C64/* $(VICE_SHARE_DIR)/data/C64/
 	@echo "Copied data files to $(VICE_SHARE_DIR)/data/C64/"
 
-vice_all: ## Full VICE pipeline (common deps + VICE) ending with menu install
-vice_all: deps vice_deps vice_download vice_extract vice_patch vice_autogen vice_configure vice_build vice_install vice_update_config samba_setup tools setup_vice_config copy_vice_data install_menu post_install_message
+vice_body: ## VICE-only steps (no common phases)
+	$(MAKE) vice_deps vice_download vice_extract vice_patch vice_autogen vice_configure vice_build vice_install vice_update_config setup_vice_config copy_vice_data
+
+vice_all: ## Full VICE pipeline including common pre/post phases
+	$(MAKE) common_pre
+	$(MAKE) vice_body
+	$(MAKE) common_post

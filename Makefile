@@ -12,7 +12,11 @@ include atari.mk
 all: everything ## Build and install VICE and Atari plus menu (default)
 default: all
 
-everything: vice_all atari_all ## Full multi-emulator environment
+everything: ## Build both emulators with common phases only once
+	$(MAKE) common_pre
+	$(MAKE) vice_body
+	$(MAKE) atari_body
+	$(MAKE) common_post
 vice: vice_all ## VICE only
 atari: atari_all ## Atari only
 

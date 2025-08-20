@@ -1,4 +1,4 @@
-.PHONY: deps samba_setup autologin_pi tools install_menu post_install_message reboot clean help
+.PHONY: deps samba_setup autologin_pi tools install_menu post_install_message reboot clean help common_pre common_post
 
 # Shared directories
 SHARE_DIR := $(HOME)/share
@@ -18,7 +18,6 @@ deps: ## Install common system & build dependencies
 	sudo apt-get install -y $(OS_DEPS) $(BUILD_DEPS)
 
 samba_setup: ## Install & configure Samba share at $(SHARE_DIR)
-	sudo apt-get update
 	sudo apt-get install -y samba
 	mkdir -p $(SHARE_DIR)/disks $(SHARE_DIR)/roms $(SHARE_DIR)/data
 	# Remove existing VICE share block
@@ -36,7 +35,6 @@ autologin_pi: ## Enable console auto-login for current user (Raspberry Pi OS)
 	@echo "Console autologin enabled."
 
 tools: ## Install general tools (Midnight Commander)
-	sudo apt-get update
 	sudo apt-get install -y mc
 	@echo "Installed Midnight Commander (mc)."
 
@@ -55,6 +53,13 @@ post_install_message: ## Final instructions after full build/install
 
 reboot: ## Prompt then reboot to finalise setup
 	@bash -c 'read -n 1 -s -r -p "Press any key to reboot..."; echo; sudo reboot'
+
+# Grouped common phases for reuse
+common_pre: ## Run shared pre-build setup (deps, samba, tools)
+	$(MAKE) deps
+
+common_post: ## Run shared post-build steps (install menu + final message)
+	$(MAKE)  samba_setup tools install_menu post_install_message reboot
 
 clean: ## Remove downloaded source trees (VICE & Atari)
 	rm -rf $(HOME)/vice-src $(HOME)/atari-src

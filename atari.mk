@@ -1,5 +1,5 @@
 # ---------------- Atari build layer ----------------
-.PHONY: atari_all atari_deps atari_clone atari_autogen atari_configure atari_build atari_install atari_copy_config
+.PHONY: atari_all atari_body atari_deps atari_clone atari_autogen atari_configure atari_build atari_install atari_copy_config
 
 ATARI_REPO_URL := https://github.com/aminch/atari800-pios-lite.git
 ATARI_BRANCH   := pios-lite
@@ -42,5 +42,10 @@ atari_copy_config: ## Copy single default Atari config (.atari.cfg) into HOME if
 		echo "Config file $(ATARI_DEFAULT_CFG) not found."; \
 	fi
 
-atari_all: ## Full Atari pipeline (deps + clone + build + install + config)
-atari_all: deps atari_deps atari_clone atari_autogen atari_configure atari_build atari_install atari_copy_config install_menu post_install_message
+atari_body: ## Atari-only steps (no common phases)
+	$(MAKE) atari_deps atari_clone atari_autogen atari_configure atari_build atari_install atari_copy_config
+
+atari_all: ## Full Atari pipeline including common pre/post phases
+	$(MAKE) common_pre
+	$(MAKE) atari_body
+	$(MAKE) common_post
