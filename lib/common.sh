@@ -39,9 +39,9 @@ confirm() { log_info "CONFIRM?: $1"; whiptail --backtitle "$BACKTITLE" --yesno "
 
 # Read current autostart emulator from ~/.bash_profile
 get_autostart_emulator() {
-  # Look inside legacy VICE AUTOSTART block (or generic) and extract final path command
+  # Look inside RETROPC (new) or VICE (legacy) AUTOSTART block and extract executable name
   local line exe
-  line=$(awk '/# (VICE )?AUTOSTART START/{f=1;next} /# (VICE )?AUTOSTART END/{f=0} f && /\/bin\//{print}' "$HOME/.bash_profile" 2>/dev/null | tail -n1)
+  line=$(awk '/# (RETROPC |VICE )?AUTOSTART START/{f=1;next} /# (RETROPC |VICE )?AUTOSTART END/{f=0} f && /\/bin\//{print}' "$HOME/.bash_profile" 2>/dev/null | tail -n1)
   exe=$(echo "$line" | awk '{print $NF}' | awk -F'/' '{print $NF}')
   [ -n "$exe" ] && echo "$exe" || echo ""
 }
@@ -51,13 +51,14 @@ set_autostart_emulator() {
   local path="$1"
   [ -z "$path" ] && return 1
   touch "$HOME/.bash_profile"
-  sed -i '/# VICE AUTOSTART START/,/# VICE AUTOSTART END/d' "$HOME/.bash_profile"
+  # Remove any existing RETROPC or legacy VICE blocks
+  sed -i '/# \(RETROPC\|VICE\) AUTOSTART START/,/# \(RETROPC\|VICE\) AUTOSTART END/d' "$HOME/.bash_profile"
   {
-    echo '# VICE AUTOSTART START'
+    echo '# RETROPC AUTOSTART START'
     echo 'if [ -z "$SSH_CONNECTION" ]; then'
     echo "  $path"
     echo 'fi'
-    echo '# VICE AUTOSTART END'
+    echo '# RETROPC AUTOSTART END'
   } >> "$HOME/.bash_profile"
-  log_info "Set autostart emulator to $path"
+  log_info "Set autostart emulator to $path (RETROPC AUTOSTART block)"
 }
