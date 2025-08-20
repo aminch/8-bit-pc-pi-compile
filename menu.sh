@@ -46,6 +46,7 @@ main_menu() {
       "8" "Shutdown Raspberry Pi" 3>&1 1>&2 2>&3) || break
     case $CHOICE in
       1)
+        current=$(get_autostart_emulator)  # Get fresh value right before launch
         if [ -n "$current" ]; then
           # Resolve possible locations for both VICE and Atari emulators
           # Stored autostart is executable name only, reconstruct candidate paths
@@ -85,7 +86,6 @@ main_menu() {
           esac
           if [ -x "$exec_path" ]; then
       set_autostart_emulator "$exec_path"
-      current=$(get_autostart_emulator)
       msg "Autostart emulator set to $SEL" 8 40
           else
             msg "Executable for $SEL not found at $exec_path" 8 60
