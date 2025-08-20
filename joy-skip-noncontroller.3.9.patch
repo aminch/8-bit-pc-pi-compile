@@ -1,0 +1,22 @@
+--- a/src/arch/sdl/joy.c
++++ b/src/arch/sdl/joy.c
+@@ -224,6 +224,19 @@
+ #else
+             name = lib_strdup(SDL_JoystickName(i));
+ #endif
++                /* Ignore devices that are not actual joysticks/controllers */
++                if (strstr(name, "Keyboard") ||
++                    strstr(name, "System Control") ||
++                    strstr(name, "Consumer Control") ||
++                    strstr(name, "Mouse") ||
++                    strstr(name, "Touchpad") ||
++                    strstr(name, "Touch Pad") ||
++                    strstr(name, "Power Button")) {
++                    log_message(sdljoy_log, "Ignoring non-controller device: %s", name);
++                    lib_free(name);
++                    SDL_JoystickClose(joy);
++                    continue;
++                }
+             axis = SDL_JoystickNumAxes(joy);
+             button = SDL_JoystickNumButtons(joy);
+             hat = SDL_JoystickNumHats(joy);
