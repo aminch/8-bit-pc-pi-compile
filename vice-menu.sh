@@ -11,6 +11,10 @@ DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 # Config file for VICE
 VICERC="$HOME/.config/vice/sdl-vicerc"
 
+# Script/menu version (read from VERSION file in same directory). Fallback to 0.0.0 if missing.
+MENU_VERSION="$(grep -Eo '^[0-9]+\.[0-9]+\.[0-9]+' "$DIR/VERSION" 2>/dev/null | head -n1)"
+[ -n "$MENU_VERSION" ] || MENU_VERSION="0.0.0"
+
 get_current_bash_profile_emulator() {
     grep "/vice-${VICE_VERSION}/bin/x" "$HOME/.bash_profile" 2>/dev/null | grep -E 'x64sc|x64' | awk -F'/' '{print $NF}'
 }
@@ -186,7 +190,7 @@ while true; do
     CURRENT_EMU=$(get_current_bash_profile_emulator)
     KEYBOARD_LAYOUT=$(get_keyboard_layout)
     JOYPORT_SETUP=$(get_joyport_setup)
-    CHOICE=$(whiptail --title "VICE Pi Menu" \
+    CHOICE=$(whiptail --title "VICE Pi Menu" --backtitle "VICE Pi Menu v$MENU_VERSION" \
         --ok-button "Select" --cancel-button "Exit" \
         --menu "Choose an option:" 24 80 13 \
         "1" "Launch current emulator" \
@@ -196,7 +200,7 @@ while true; do
         "5" "Launch Midnight Commander file manager" \
         "6" "Start Samba (Windows file sharing)" \
         "7" "Stop Samba (Windows file sharing)" \
-        "8" "Update vice-menu & Makefile" \
+        "8" "Updates (script, Makefile, Pi OS)" \
         "9" "Launch raspi-config" \
         "10" "Set Pi to auto-login without a password" \
         "11" "Reboot Raspberry Pi" \
@@ -212,7 +216,7 @@ while true; do
             fi
             ;;
         2)
-            EMU=$(whiptail --title "Select Emulator" --default-item "${CURRENT_EMU:-x64}" \
+            EMU=$(whiptail --title "Select Emulator" --backtitle "VICE Pi Menu v$MENU_VERSION" --default-item "${CURRENT_EMU:-x64}" \
                     --menu "Choose emulator to launch:" 15 50 2 \
                     "x64" "C64 emulator (fast, Pi400)" \
                     "x64sc" "C64 emulator (cycle exact, Pi500)" 3>&1 1>&2 2>&3)
@@ -226,7 +230,7 @@ while true; do
             fi
             ;;
         3)
-            KEYB=$(whiptail --title "Select Pi Keyboard Layout" --default-item "${KEYBOARD_LAYOUT:-Pi400/Pi500 UK}" \
+            KEYB=$(whiptail --title "Select Pi Keyboard Layout" --backtitle "VICE Pi Menu v$MENU_VERSION" --default-item "${KEYBOARD_LAYOUT:-Pi400/Pi500 UK}" \
                 --menu "Choose keyboard layout:" 15 70 4 \
                 "Pi400/Pi500 UK" "UK keyboard layout for Pi400/Pi500" \
                 "Pi400/Pi500 US" "US keyboard layout for Pi400/Pi500" \
@@ -238,7 +242,7 @@ while true; do
             fi
             ;;
         4)
-            JOY=$(whiptail --title "Select Joyport Setup" --default-item "${JOYPORT_SETUP:-J1-J2 USB}" \
+            JOY=$(whiptail --title "Select Joyport Setup" --backtitle "VICE Pi Menu v$MENU_VERSION" --default-item "${JOYPORT_SETUP:-J1-J2 USB}" \
                 --menu "Choose joyport setup:" 15 70 4 \
                 "J1-J2 USB" "Both joysticks on USB" \
                 "M1-J2 USB" "Mouse (port 1) on USB, Joystick (port 2) on USB" \
@@ -261,17 +265,29 @@ while true; do
             whiptail --msgbox "Samba stopped." 8 40
             ;;
         8)
-            if whiptail --yesno "Do you want to update this script and Makefile from the git repository?" 10 60; then
-                if git -C "$DIR" pull 2> >(GITERR=$(cat); typeset -p GITERR >&2); then
-                    whiptail --msgbox "Update complete. Restarting menu..." 8 40
-                    exec "$0"
-                else
-                    whiptail --msgbox "Git update failed! Please check your network or repository." 12 70
-                fi
-            fi
+        UPDATE_CHOICE=$(whiptail --title "Updates" --backtitle "VICE Pi Menu v$MENU_VERSION" --menu "Choose update option:" 15 70 2 \
+                "1" "Update vice-menu & Makefile" \
+                "2" "Update Pi OS" 3>&1 1>&2 2>&3)
+            case $UPDATE_CHOICE in
+                1)
+            if whiptail --backtitle "VICE Pi Menu v$MENU_VERSION" --yesno "Do you want to update this script and Makefile from the git repository?" 10 60; then
+                        if git -C "$DIR" pull 2> >(GITERR=$(cat); typeset -p GITERR >&2); then
+                            whiptail --msgbox "Update complete. Restarting menu..." 8 40
+                            exec "$0"
+                        else
+                            whiptail --msgbox "Git update failed! Please check your network or repository." 12 70
+                        fi
+                    fi
+                    ;;
+                2)
+            whiptail --backtitle "VICE Pi Menu v$MENU_VERSION" --msgbox "Updating Pi OS. This may take a while..." 8 40
+                    sudo apt update && sudo apt upgrade -y
+            whiptail --backtitle "VICE Pi Menu v$MENU_VERSION" --msgbox "Pi OS update complete." 8 40
+                    ;;
+            esac
             ;;
         9)
-            sudo raspi-config
+        sudo raspi-config
             ;;
         10)
             make -C "$DIR" autologin_pi
