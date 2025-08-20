@@ -5,6 +5,7 @@ VICE_INSTALL_DIR := $(HOME)/vice-$(VICE_VERSION)
 VICE_SHARE_DIR := $(HOME)/vice-share
 VICE_APP := x64sc
 PATCH_FILE := $(PWD)/joy-skip-noncontroller.3.9.patch
+JOY_SRC_FILE := $(VICE_BUILD_DIR)/src/arch/sdl/joy.c
 
 # Detect Pi 4 family and override variables as needed
 ifeq ($(shell model=$$(tr -d "\0" < /proc/device-tree/model); echo $$model | grep -Eq "Raspberry Pi 4|Raspberry Pi 400|Compute Module 4" && echo yes),yes)
@@ -54,16 +55,16 @@ download:
 extract:
 	tar -xvf $(VICE_SRC_DIR)/vice-$(VICE_VERSION).tar.gz -C $(VICE_SRC_DIR)
 
-patch: extract
+patch:
 	@if [ ! -f "$(PATCH_FILE)" ]; then \
 		echo "Patch file $(PATCH_FILE) not found."; exit 1; \
 	fi
 	@echo "Checking joystick patch..."
-	@if (cd $(VICE_BUILD_DIR) && patch -p1 -R --dry-run < $(PATCH_FILE) >/dev/null 2>&1); then \
-		echo "Patch already applied; skipping."; \
+	@if grep -q 'Ignoring non-controller device' "$(JOY_SRC_FILE)"; then \
+		echo "Joystick patch already present; skipping."; \
 	else \
 		echo "Applying joystick patch..."; \
-		cd $(VICE_BUILD_DIR) && patch -p1 < $(PATCH_FILE); \
+		cd $(VICE_BUILD_DIR) && patch -p1 < "$(PATCH_FILE)"; \
 		echo "Patch applied."; \
 	fi
 
