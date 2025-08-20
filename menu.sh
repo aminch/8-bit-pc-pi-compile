@@ -29,13 +29,13 @@ do_updates() {
 }
 
 main_menu() {
-  local current
   while true; do
+    local current
     current=$(get_autostart_emulator)
     local CHOICE
     CHOICE=$(whiptail --title "8-bit PC Main Menu" --backtitle "$BACKTITLE" \
       --ok-button "Select" --cancel-button "Exit" \
-      --menu "Choose an option (current autostart: ${current:-none}):" 22 80 12 \
+      --menu "Choose an option:" 22 80 12 \
       "1" "Launch current emulator (${current:-none})" \
       "2" "Select autostart emulator (x64 / x64sc / atari800)" \
       "3" "VICE specific options" \
