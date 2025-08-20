@@ -7,7 +7,7 @@ DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 
 VICE_VERSION="3.9"
 VICE_INSTALL_DIR=$HOME/vice-$VICE_VERSION
-VICE_SHARE_DATA_DIR=$HOME/vice-share/data
+VICE_SHARE_DATA_DIR=$HOME/share/data
 VICERC="$HOME/.config/vice/sdl-vicerc"
 
 get_vicerc_section() {
