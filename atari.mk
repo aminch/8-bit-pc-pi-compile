@@ -6,9 +6,9 @@ ATARI_BRANCH   := pios-lite
 ATARI_SRC_ROOT := $(HOME)/atari-src
 ATARI_BUILD_DIR := $(ATARI_SRC_ROOT)/atari800-pios-lite
 ATARI_INSTALL_DIR := $(HOME)/atari800
-ATARI_DEFAULT_CFG := $(ATARI_BUILD_DIR)/defaults/.atari.cfg
+ATARI_DEFAULT_CFG := $(PWD)/defaults/.atari.cfg
 
-# Extra libs VICE needs beyond common deps
+# Extra libs Atari800 needs beyond common deps
 ATARI_DEPS = libsdl2-image-dev libsdl2-dev libsdl2-2.0-0
 
 atari_deps: ## Install Atari specific dependencies
