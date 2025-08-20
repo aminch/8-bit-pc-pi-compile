@@ -85,6 +85,7 @@ main_menu() {
           esac
           if [ -x "$exec_path" ]; then
       set_autostart_emulator "$exec_path"
+      current=$(get_autostart_emulator)
       msg "Autostart emulator set to $SEL" 8 40
           else
             msg "Executable for $SEL not found at $exec_path" 8 60
