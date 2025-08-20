@@ -59,7 +59,7 @@ common_pre: ## Run shared pre-build setup (deps, samba, tools)
 	$(MAKE) deps
 
 common_post: ## Run shared post-build steps (install menu + final message)
-	$(MAKE)  samba_setup tools install_menu post_install_message reboot
+	$(MAKE)  samba_setup autologin_pi tools install_menu post_install_message reboot
 
 clean: ## Remove downloaded source trees (VICE & Atari)
 	rm -rf $(HOME)/vice-src $(HOME)/atari-src
