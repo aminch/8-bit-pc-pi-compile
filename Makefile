@@ -6,12 +6,15 @@ include common.mk
 include vice.mk
 include atari.mk
 
-.PHONY: all default vice atari
+.PHONY: all default vice atari everything
 
-all: vice_all ## Default 'all' runs full VICE pipeline (legacy behaviour)
+# Build BOTH VICE and Atari by default
+all: everything ## Build and install VICE and Atari plus menu (default)
 default: all
-vice: vice_all ## Alias
-atari: atari_all ## Placeholder Atari build
+
+everything: vice_all atari_all ## Full multi-emulator environment
+vice: vice_all ## VICE only
+atari: atari_all ## Atari only
 
 # The help target is defined in common.mk and will list targets from all included files.
 
