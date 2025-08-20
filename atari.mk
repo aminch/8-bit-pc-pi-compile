@@ -1,15 +1,3 @@
-# ---------------- Atari (placeholder) build layer ----------------
-.PHONY: atari_all atari_deps
-
-ATARI_SRC_DIR := $(HOME)/atari-src
-ATARI_INSTALL_DIR := $(HOME)/atari800
-
-# Extra libs VICE needs beyond common deps
-ATARI_DEPS = libsdl2-image-dev libsdl2-dev libsdl2-2.0-0
-
-atari_deps: ## Install Atari specific dependencies
-	sudo apt-get install -y $(ATARI_DEPS)
-
 # ---------------- Atari build layer ----------------
 .PHONY: atari_all atari_deps atari_clone atari_autogen atari_configure atari_build atari_install atari_copy_config
 
@@ -20,9 +8,8 @@ ATARI_BUILD_DIR := $(ATARI_SRC_ROOT)/atari800-pios-lite
 ATARI_INSTALL_DIR := $(HOME)/atari800
 ATARI_DEFAULT_CFG := $(ATARI_BUILD_DIR)/defaults/.atari.cfg
 
-# Additional deps (beyond common + SDL which come from VICE path) – extend if needed
-ATARI_DEPS = libsdl2-image-dev libsdl2-dev libsdl2-2.0-0 \
-	libreadline-dev zlib1g-dev
+# Extra libs VICE needs beyond common deps
+ATARI_DEPS = libsdl2-image-dev libsdl2-dev libsdl2-2.0-0
 
 atari_deps: ## Install Atari specific dependencies
 	sudo apt-get install -y $(ATARI_DEPS)
