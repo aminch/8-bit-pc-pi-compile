@@ -10,8 +10,6 @@ ATARI_INSTALL_DIR="$HOME/atari800" # adjust when implemented
 ATARI_CFG="$HOME/.atari800.cfg"
 
 setup_gpio_joysticks() {
-  local cfg="$ATARI_CFG"
-  touch "$cfg"
   local -A pairs=(
     [SDL2_JOY_0_ENABLED]=1
     [SDL2_JOY_0_LEFT]=1073741919
@@ -26,21 +24,24 @@ setup_gpio_joysticks() {
     [SDL2_JOY_1_DOWN]=1073741914
     [SDL2_JOY_1_TRIGGER]=1073741917
   )
-  if ! command -v crudini >/dev/null 2>&1; then
-    msg "crudini not installed. Install with: sudo apt-get install -y crudini" 10 60
-    return 1
-  fi
-  local k v
-  for k in "${!pairs[@]}"; do
-    v="${pairs[$k]}"
-    crudini --set "$cfg" '' "$k" "$v" 2>/dev/null || {
-      msg "Failed writing key $k" 8 50
-      return 1
-    }
-  done
-  # Remove accidental empty section header if crudini inserted one
-  sed -i '/^\[\]$/d' "$cfg"
-  msg "GPIO joystick mappings written." 8 45
+  set_config_values "$ATARI_CFG" "GPIO joystick mappings written." pairs
+}
+
+reset_video_settings() {
+  local -A video_settings=(
+    [VIDEOMODE_WINDOW_WIDTH]=1280
+    [VIDEOMODE_WINDOW_HEIGHT]=720
+    [VIDEOMODE_WINDOWED]=1
+    [VIDEOMODE_HORIZONTAL_AREA]=TV
+    [VIDEOMODE_VERTICAL_AREA]=TV
+    [VIDEOMODE_STRETCH]=FULL
+    [VIDEOMODE_FIT]=BOTH
+    [VIDEOMODE_IMAGE_ASPECT]=NONE
+    [SCANLINES_PERCENTAGE]=20
+    [INTERPOLATE_SCANLINES]=1
+    [PILLARBOX]=1
+  )
+  set_config_values "$ATARI_CFG" "Video settings reset to defaults." video_settings
 }
 
 atari_menu() {
@@ -48,12 +49,14 @@ atari_menu() {
   while true; do
   CHOICE=$(whiptail --title "Atari800 Options" --backtitle "$BACKTITLE" \
       --ok-button "Select" --cancel-button "Back" \
-      --menu "Atari800 configuration:" 12 70 3 \
+      --menu "Atari800 configuration:" 15 70 4 \
       "1" "Setup GPIO Joysticks" \
-      "2" "Return to main menu" 3>&1 1>&2 2>&3) || return 0
+      "2" "Reset video settings" \
+      "3" "Return to main menu" 3>&1 1>&2 2>&3) || return 0
     case $CHOICE in
       1) setup_gpio_joysticks ;;
-      2) return 0 ;;
+      2) reset_video_settings ;;
+      3) return 0 ;;
     esac
   done
 }

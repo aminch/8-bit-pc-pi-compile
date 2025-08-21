@@ -63,3 +63,31 @@ set_autostart_emulator() {
   } >> "$HOME/.bash_profile"
   log_info "Set autostart emulator to $path (RETROPC AUTOSTART block)"
 }
+
+# Generic function to set multiple key-value pairs in config file using crudini
+set_config_values() {
+  local cfg="$1"
+  local description="$2"
+  shift 2
+  local -n pairs_ref=$1
+  
+  if [ ! -f "$cfg" ]; then
+    touch "$cfg"
+  fi
+  if ! command -v crudini >/dev/null 2>&1; then
+    msg "crudini not installed. Install with: sudo apt-get install -y crudini" 10 60
+    return 1
+  fi
+  
+  local k v
+  for k in "${!pairs_ref[@]}"; do
+    v="${pairs_ref[$k]}"
+    crudini --set "$cfg" '' "$k" "$v" 2>/dev/null || {
+      msg "Failed writing key $k" 8 50
+      return 1
+    }
+  done
+  # Remove accidental empty section header if crudini inserted one
+  sed -i '/^\[\]$/d' "$cfg"
+  msg "$description" 8 45
+}

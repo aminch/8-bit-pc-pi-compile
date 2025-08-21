@@ -101,6 +101,31 @@ main_menu() {
   done
 }
 
+set_video_mode() {
+  local resolution="$1"
+  local video_param="video=HDMI-A-1:$resolution"
+  
+  # Determine cmdline.txt path
+  local cmdline_file
+  if [ -d /boot/firmware ]; then
+    cmdline_file="/boot/firmware/cmdline.txt"
+  else
+    cmdline_file="/boot/cmdline.txt"
+  fi
+  
+  # Remove any existing video= parameter
+  sudo sed -i 's/ video=HDMI-A-1:[^ ]*//' "$cmdline_file"
+  
+  # Add the new video parameter
+  sudo sed -i "s/$/ $video_param/" "$cmdline_file"
+  
+  if confirm "Video mode set to $resolution. Reboot now to apply changes?" 10 60; then
+    sudo reboot
+  else
+    msg "Video mode updated. Reboot required to take effect." 8 60
+  fi
+}
+
 tools_menu() {
   while true; do
     local TCHOICE
@@ -112,14 +137,18 @@ tools_menu() {
       "3" "Stop Samba (Windows file sharing)" \
       "4" "Launch raspi-config" \
       "5" "Set Pi to auto-login (console)" \
-      "6" "Return to main menu" 3>&1 1>&2 2>&3) || return 0
+      "6" "Set video mode 1080p" \
+      "7" "Set video mode 720p" \
+      "8" "Return to main menu" 3>&1 1>&2 2>&3) || return 0
     case $TCHOICE in
       1) mc ;;
       2) sudo systemctl start smbd; msg "Samba started." 8 40 ;;
       3) sudo systemctl stop smbd; msg "Samba stopped." 8 40 ;;
       4) sudo raspi-config ;;
       5) make -C "$BASE_DIR" autologin_pi; msg "Auto-login setup complete." 8 50 ;;
-      6) return 0 ;;
+      6) set_video_mode "1920x1080M@60" ;;
+      7) set_video_mode "1280x720M@60" ;;
+      8) return 0 ;;
     esac
   done
 }
