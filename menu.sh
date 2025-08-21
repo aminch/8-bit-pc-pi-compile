@@ -69,7 +69,7 @@ main_menu() {
             log_info "Launching emulator: $found"
             "$found"
           else
-            msg "Emulator '$current' not found in PATH or expected directories." 8 70
+            msg "Emulator '$current_emu' not found in PATH or expected directories." 8 70
           fi
         else
           msg "No emulator set to autostart." 8 50
