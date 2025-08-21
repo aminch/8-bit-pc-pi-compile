@@ -91,6 +91,7 @@ main_menu() {
           if [ -x "$exec_path" ]; then
       set_autostart_emulator "$exec_path"
       msg "Autostart emulator set to $SEL" 8 40
+      continue  # Force menu reload to show updated current emulator
           else
             msg "Executable for $SEL not found at $exec_path" 8 60
           fi
