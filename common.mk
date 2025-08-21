@@ -1,4 +1,4 @@
-.PHONY: deps samba_setup autologin_pi tools install_menu post_install_message update_config reboot clean help common_pre common_post
+.PHONY: deps samba_setup autologin_pi tools install_menu post_install_message update_config update_cmdline reboot clean help common_pre common_post
 
 # Shared directories
 SHARE_DIR := $(HOME)/share
@@ -6,8 +6,10 @@ SHARE_DIR := $(HOME)/share
 # Pick config.txt path
 ifeq ($(shell test -d /boot/firmware && echo yes),yes)
 CONFIG_FILE := /boot/firmware/config.txt
+CMDLINE_FILE := /boot/firmware/cmdline.txt
 else
 CONFIG_FILE := /boot/config.txt
+CMDLINE_FILE := /boot/cmdline.txt
 endif
 
 # Common dependencies (system + build)
@@ -67,6 +69,15 @@ update_config: ## Update Pi firmware config (splash + GPIO overlay)
 		rm -f /tmp/gpio-keys-block.txt; echo "GPIO joystick key overlays added to $(CONFIG_FILE)."; \
 	else echo "GPIO joystick key overlays already present in $(CONFIG_FILE)."; fi
 
+update_cmdline: ## Update cmdline.txt with video parameters
+	@echo "Updating cmdline.txt with HDMI video parameters..."
+	@if ! grep -q "video=HDMI-A-1:1920x1080M@60" $(CMDLINE_FILE); then \
+		sudo sed -i 's/$$/ video=HDMI-A-1:1920x1080M@60/' $(CMDLINE_FILE); \
+		echo "Added video=HDMI-A-1:1920x1080M@60 to $(CMDLINE_FILE)."; \
+	else \
+		echo "video=HDMI-A-1:1920x1080M@60 already present in $(CMDLINE_FILE)."; \
+	fi
+
 post_install_message: ## Final instructions after full build/install
 	@echo ""
 	@echo "============================================================"
@@ -83,7 +94,7 @@ common_pre: ## Run shared pre-build setup (deps, samba, tools)
 	$(MAKE) deps
 
 common_post: ## Run shared post-build steps (install menu + final message)
-	$(MAKE)  update_config samba_setup autologin_pi tools install_menu post_install_message reboot
+	$(MAKE)  update_config update_cmdline samba_setup autologin_pi tools install_menu post_install_message reboot
 
 clean: ## Remove downloaded source trees (VICE & Atari)
 	rm -rf $(HOME)/vice-src $(HOME)/atari-src
