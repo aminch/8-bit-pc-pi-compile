@@ -74,8 +74,11 @@ main_menu() {
           msg "No emulator set to autostart." 8 50
         fi ;;
       2)
-    local SEL exec_path
-        SEL=$(whiptail --title "Select Autostart Emulator" --backtitle "$BACKTITLE" --menu "Choose emulator:" 15 60 3 \
+    local SEL exec_path current_emu
+        current_emu=$(get_autostart_emulator)
+        SEL=$(whiptail --title "Select Autostart Emulator" --backtitle "$BACKTITLE" \
+          --default-item "${current_emu:-x64sc}" \
+          --menu "Choose emulator:" 15 60 3 \
           "x64" "VICE C64 (fast, Pi400)" \
           "x64sc" "VICE C64 (cycle exact, Pi500)" \
           "atari800" "Atari 8-bit" 3>&1 1>&2 2>&3) || true
