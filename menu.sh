@@ -46,17 +46,18 @@ main_menu() {
       "8" "Shutdown Raspberry Pi" 3>&1 1>&2 2>&3) || break
     case $CHOICE in
       1)
-        current=$(get_autostart_emulator)  # Get fresh value right before launch
-        if [ -n "$current" ]; then
+        local current_emu
+        current_emu=$(get_autostart_emulator)  # Get fresh value right before launch
+        if [ -n "$current_emu" ]; then
           # Resolve possible locations for both VICE and Atari emulators
           # Stored autostart is executable name only, reconstruct candidate paths
           declare -a CANDIDATES
-          CANDIDATES+=("$current") # if already in PATH
-          CANDIDATES+=("$HOME/vice-3.9/bin/$current")
-          CANDIDATES+=("$HOME/atari800/bin/$current")
+          CANDIDATES+=("$current_emu") # if already in PATH
+          CANDIDATES+=("$HOME/vice-3.9/bin/$current_emu")
+          CANDIDATES+=("$HOME/atari800/bin/$current_emu")
           # In case user previously stored full path (older block), include it directly if it exists
-          if [[ "$current" == */* && -x "$current" ]]; then
-            CANDIDATES=("$current")
+          if [[ "$current_emu" == */* && -x "$current_emu" ]]; then
+            CANDIDATES=("$current_emu")
           fi
           found=""
           for c in "${CANDIDATES[@]}"; do
