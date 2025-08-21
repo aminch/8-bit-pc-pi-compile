@@ -1,7 +1,14 @@
-.PHONY: deps samba_setup autologin_pi tools install_menu post_install_message reboot clean help common_pre common_post
+.PHONY: deps samba_setup autologin_pi tools install_menu post_install_message update_config reboot clean help common_pre common_post
 
 # Shared directories
 SHARE_DIR := $(HOME)/share
+
+# Pick config.txt path
+ifeq ($(shell test -d /boot/firmware && echo yes),yes)
+CONFIG_FILE := /boot/firmware/config.txt
+else
+CONFIG_FILE := /boot/config.txt
+endif
 
 # Common dependencies (system + build)
 OS_DEPS = pulseaudio alsa-tools crudini
@@ -43,6 +50,23 @@ install_menu: ## Install launcher script to /usr/local/bin/menu
 	sudo ln -sf $(PWD)/menu.sh /usr/local/bin/menu
 	@echo "Launcher installed: run 'menu'"
 
+update_config: ## Update Pi firmware config (splash + GPIO overlay)
+	@echo "Disabling Raspberry Pi rainbow splash screen in config.txt..."
+	@sudo sed -i '/^disable_splash=/d' $(CONFIG_FILE)
+	@if ! grep -q '^disable_splash=1' $(CONFIG_FILE); then \
+		LINE=$$(grep -n '^\[' $(CONFIG_FILE) | head -n1 | cut -d: -f1); \
+		echo "disable_splash=1" > /tmp/config-tmp.txt; echo "" >> /tmp/config-tmp.txt; \
+		if [ -n "$$LINE" ]; then sudo sed -i "$$((LINE-1))r /tmp/config-tmp.txt" $(CONFIG_FILE); else sudo tee -a $(CONFIG_FILE) < /tmp/config-tmp.txt > /dev/null; fi; \
+		rm -f /tmp/config-tmp.txt; echo "Added disable_splash=1 to $(CONFIG_FILE)."; \
+	else echo "disable_splash=1 already present in $(CONFIG_FILE)."; fi
+	@echo "Checking for existing GPIO joystick key overlays..."
+	@if ! grep -q "dtoverlay=gpio-key,gpio=17,active_low=1,gpio_pull=up,keycode=73" $(CONFIG_FILE); then \
+		LINE=$$(grep -n '^\[' $(CONFIG_FILE) | head -n1 | cut -d: -f1); \
+		cat gpio-keys.txt > /tmp/gpio-keys-block.txt; echo "" >> /tmp/gpio-keys-block.txt; \
+		if [ -n "$$LINE" ]; then sudo sed -i "$$((LINE-1))r /tmp/gpio-keys-block.txt" $(CONFIG_FILE); else sudo tee -a $(CONFIG_FILE) < /tmp/gpio-keys-block.txt > /dev/null; fi; \
+		rm -f /tmp/gpio-keys-block.txt; echo "GPIO joystick key overlays added to $(CONFIG_FILE)."; \
+	else echo "GPIO joystick key overlays already present in $(CONFIG_FILE)."; fi
+
 post_install_message: ## Final instructions after full build/install
 	@echo ""
 	@echo "============================================================"
@@ -59,7 +83,7 @@ common_pre: ## Run shared pre-build setup (deps, samba, tools)
 	$(MAKE) deps
 
 common_post: ## Run shared post-build steps (install menu + final message)
-	$(MAKE)  samba_setup autologin_pi tools install_menu post_install_message reboot
+	$(MAKE)  update_config samba_setup autologin_pi tools install_menu post_install_message reboot
 
 clean: ## Remove downloaded source trees (VICE & Atari)
 	rm -rf $(HOME)/vice-src $(HOME)/atari-src
