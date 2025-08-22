@@ -49,28 +49,16 @@ main_menu() {
         local current_emu
         current_emu=$(get_autostart_emulator)  # Get fresh value right before launch
         if [ -n "$current_emu" ]; then
-          # Resolve possible locations for both VICE and Atari emulators
-          # Stored autostart is executable name only, reconstruct candidate paths
-          declare -a CANDIDATES
-          CANDIDATES+=("$current_emu") # if already in PATH
-          CANDIDATES+=("$HOME/vice-3.9/bin/$current_emu")
-          CANDIDATES+=("$HOME/atari800/bin/$current_emu")
-          # In case user previously stored full path (older block), include it directly if it exists
-          if [[ "$current_emu" == */* && -x "$current_emu" ]]; then
-            CANDIDATES=("$current_emu")
-          fi
-          found=""
-          for c in "${CANDIDATES[@]}"; do
-            if [ -x "$c" ]; then
-              found="$c"; break
-            fi
-          done
-          if [ -n "$found" ]; then
-            log_info "Launching emulator: $found"
-            "$found"
-          else
-            msg "Emulator '$current_emu' not found in PATH or expected directories." 8 70
-          fi
+          case "$current_emu" in
+            x64|x64sc)
+              log_info "Launching VICE emulator: $current_emu"
+              "$HOME/vice-3.9/bin/$current_emu" ;;
+            atari800)
+              log_info "Launching Atari emulator: $current_emu"
+              "$HOME/atari800/bin/$current_emu" ;;
+            *)
+              msg "Unknown emulator: $current_emu" 8 50 ;;
+          esac
         else
           msg "No emulator set to autostart." 8 50
         fi ;;
