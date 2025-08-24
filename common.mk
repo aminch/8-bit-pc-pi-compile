@@ -12,6 +12,9 @@ CONFIG_FILE := /boot/config.txt
 CMDLINE_FILE := /boot/cmdline.txt
 endif
 
+# HDMI video setting start with 720p to be conservative
+VIDEO_SETTING := video=HDMI-A-1:1280x720M@60
+
 # Common dependencies (system + build)
 OS_DEPS = pulseaudio alsa-tools crudini
 BUILD_DEPS = git build-essential autoconf automake byacc flex xa65 gawk texinfo \
@@ -71,11 +74,12 @@ update_config: ## Update Pi firmware config (splash + GPIO overlay)
 
 update_cmdline: ## Update cmdline.txt with video parameters
 	@echo "Updating cmdline.txt with HDMI video parameters..."
-	@if ! grep -q "video=HDMI-A-1:1920x1080M@60" $(CMDLINE_FILE); then \
-		sudo sed -i 's/$$/ video=HDMI-A-1:1920x1080M@60/' $(CMDLINE_FILE); \
-		echo "Added video=HDMI-A-1:1920x1080M@60 to $(CMDLINE_FILE)."; \
+	@if grep -q "$(VIDEO_SETTING)" $(CMDLINE_FILE); then \
+		echo "$(VIDEO_SETTING) already present in $(CMDLINE_FILE)."; \
 	else \
-		echo "video=HDMI-A-1:1920x1080M@60 already present in $(CMDLINE_FILE)."; \
+		sudo sed -i '/video=HDMI-A-1:/d' $(CMDLINE_FILE); \
+		sudo sed -i 's/$$/ $(VIDEO_SETTING)/' $(CMDLINE_FILE); \
+		echo "Added $(VIDEO_SETTING) to $(CMDLINE_FILE)."; \
 	fi
 
 post_install_message: ## Final instructions after full build/install
