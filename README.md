@@ -105,7 +105,7 @@ This will:
   Add `disable_splash=1` to `/boot/config.txt` or `/boot/firmware/config.txt` to hide the Raspberry Pi rainbow splash screen on boot. The Makefile will check for `/boot/firmware/config.txt` first and use it if present.
 
 - `make samba_setup`  
-  Install Samba, create a share at `~/vice-share` with `disks` and `roms` subfolders, and configure permissions.  
+  Install Samba, create a share at `~/share` with `disks` and `roms` subfolders, and configure permissions.  
   Access from another computer using:  
   `smb://<your-pi-ip-address>/VICE`
 
@@ -128,7 +128,7 @@ This will:
 
 ## Notes
 
-- The Samba share is created at `~/vice-share` with `disks` and `roms` subfolders for easy file management.
+- The Samba share is created at `~/share` with `disks` and `roms` subfolders for easy file management.
 - The `autostart_x64sc` target only affects local console logins, not SSH sessions.
 - For headless (Lite) setups, the Makefile is designed to work without a desktop environment.
 - If you want VICE to start automatically for all users or in other scenarios, consider using a systemd user service or customizing `/etc/profile`.
