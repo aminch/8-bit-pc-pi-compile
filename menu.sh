@@ -38,7 +38,7 @@ main_menu() {
       --menu "Choose an option:" 22 80 12 \
       "1" "Launch current emulator (${current:-none})" \
       "2" "Select autostart emulator (x64 / x64sc / atari800)" \
-      "3" "(${current:-none}) emulator options" \
+      "3" "${current:-none} emulator options" \
       "4" "Tools & Utilities" \
       "5" "Updates (scripts, Makefile, Pi OS)" \
       "6" "Reboot Raspberry Pi" \
