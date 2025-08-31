@@ -33,17 +33,16 @@ main_menu() {
     local current
     current=$(get_autostart_emulator)
     local CHOICE
-    CHOICE=$(whiptail --title "8-bit PC Main Menu" --backtitle "$BACKTITLE" \
+    CHOICE=$(whiptail --title "8-bit PC Main Menu (Current: ${current:-none})" --backtitle "$BACKTITLE" \
       --ok-button "Select" --cancel-button "Exit" \
       --menu "Choose an option:" 22 80 12 \
       "1" "Launch current emulator (${current:-none})" \
       "2" "Select autostart emulator (x64 / x64sc / atari800)" \
-      "3" "VICE specific options" \
-      "4" "Atari800 specific options" \
-      "5" "Tools & Utilities" \
-      "6" "Updates (scripts, Makefile, Pi OS)" \
-      "7" "Reboot Raspberry Pi" \
-      "8" "Shutdown Raspberry Pi" 3>&1 1>&2 2>&3) || break
+      "3" "(${current:-none}) emulator options" \
+      "4" "Tools & Utilities" \
+      "5" "Updates (scripts, Makefile, Pi OS)" \
+      "6" "Reboot Raspberry Pi" \
+      "7" "Shutdown Raspberry Pi" 3>&1 1>&2 2>&3) || break
     case $CHOICE in
       1)
         local current_emu
@@ -84,12 +83,23 @@ main_menu() {
             msg "Executable for $SEL not found at $exec_path" 8 60
           fi
         fi ;;
-      3) bash "$VICE_MENU_SCRIPT" ;;
-      4) bash "$ATARI_MENU_SCRIPT" ;;
-      5) tools_menu ;;
-      6) do_updates ;;
-      7) if confirm "Reboot Raspberry Pi now?" 8 40; then sudo reboot; fi ;;
-      8) if confirm "Shutdown Raspberry Pi now?" 8 40; then sudo shutdown now; fi ;;
+      3)
+        case "$current" in
+          x64|x64sc)
+            bash "$VICE_MENU_SCRIPT"
+            ;;
+          atari800)
+            bash "$ATARI_MENU_SCRIPT"
+            ;;
+          *)
+            msg "No options available for emulator: $current" 8 50
+            ;;
+        esac
+        ;;
+      4) tools_menu ;;
+      5) do_updates ;;
+      6) if confirm "Reboot Raspberry Pi now?" 8 40; then sudo reboot; fi ;;
+      7) if confirm "Shutdown Raspberry Pi now?" 8 40; then sudo shutdown now; fi ;;
     esac
   done
 }
