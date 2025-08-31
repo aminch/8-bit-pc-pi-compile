@@ -133,12 +133,23 @@ set_joyport_setup() {
 }
 
 vice_menu() {
-  local CURRENT_EMU KEYBOARD_LAYOUT JOYPORT_SETUP CHOICE
+  local CURRENT_EMU
+  CURRENT_EMU=$(get_autostart_emulator)
+  case "$CURRENT_EMU" in
+    x64|x64sc)
+      # VICE emulator, continue
+      ;;
+    *)
+      msg "Vice C64 is not the current launch emulator.\nChange the launch emulator to set Vice options." 10 60
+      return 0
+      ;;
+  esac
+
+  local KEYBOARD_LAYOUT JOYPORT_SETUP CHOICE
   while true; do
-    CURRENT_EMU=$(get_autostart_emulator)
     KEYBOARD_LAYOUT=$(get_keyboard_layout)
     JOYPORT_SETUP=$(get_joyport_setup)
-  CHOICE=$(whiptail --title "VICE Options" --backtitle "$BACKTITLE" \
+    CHOICE=$(whiptail --title "VICE Options" --backtitle "$BACKTITLE" \
       --ok-button "Select" --cancel-button "Back" \
       --menu "VICE configuration:" 20 80 10 \
       "1" "Select Pi keyboard layout (current: ${KEYBOARD_LAYOUT})" \
