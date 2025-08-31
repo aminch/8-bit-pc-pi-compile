@@ -51,14 +51,33 @@ set_keyboard_layout() {
   local emu section
   emu=$(get_autostart_emulator)
   section=$(get_vicerc_section "$emu")
-  [ -z "$section" ] && return
+  log_info "set_keyboard_layout: emu=$emu, section=$section, VICERC=$VICERC, input=$1"
+  [ -z "$section" ] && log_error "Section empty" && return
+  [ ! -f "$VICERC" ] && log_error "VICERC does not exist" && return
   case "$1" in
-    "Pi400/Pi500 UK") crudini --set "$VICERC" "$section" KeymapIndex 2; crudini --set "$VICERC" "$section" KeymapUserSymFile "$VICE_SHARE_DATA_DIR/C64/sdl_sym_uk_pi_4-500_bmc64.vkm"; sudo raspi-config nonint do_configure_keyboard gb ;;
-    "Pi400/Pi500 US") crudini --set "$VICERC" "$section" KeymapIndex 2; crudini --set "$VICERC" "$section" KeymapUserSymFile "$VICE_SHARE_DATA_DIR/C64/sdl_sym_us_pi_4-500_bmc64.vkm"; sudo raspi-config nonint do_configure_keyboard us ;;
-    "Pi400/Pi500 NO") crudini --set "$VICERC" "$section" KeymapIndex 2; crudini --set "$VICERC" "$section" KeymapUserSymFile "$VICE_SHARE_DATA_DIR/C64/sdl_sym_no_pi_4-500_bmc64.vkm"; sudo raspi-config nonint do_configure_keyboard no ;;
-    "C64P - C64") crudini --set "$VICERC" "$section" KeymapIndex 3; crudini --set "$VICERC" "$section" KeymapUserPosFile "$VICE_SHARE_DATA_DIR/C64/sdl_c64p.vkm"; sudo raspi-config nonint do_configure_keyboard us ;;
+    "Pi400/Pi500 UK")
+      crudini --set "$VICERC" "$section" KeymapIndex 2
+      crudini --set "$VICERC" "$section" KeymapUserSymFile "$VICE_SHARE_DATA_DIR/C64/sdl_sym_uk_pi_4-500_bmc64.vkm"
+      sudo raspi-config nonint do_configure_keyboard gb
+      ;;
+    "Pi400/Pi500 US")
+      crudini --set "$VICERC" "$section" KeymapIndex 2
+      crudini --set "$VICERC" "$section" KeymapUserSymFile "$VICE_SHARE_DATA_DIR/C64/sdl_sym_us_pi_4-500_bmc64.vkm"
+      sudo raspi-config nonint do_configure_keyboard us
+      ;;
+    "Pi400/Pi500 NO")
+      crudini --set "$VICERC" "$section" KeymapIndex 2
+      crudini --set "$VICERC" "$section" KeymapUserSymFile "$VICE_SHARE_DATA_DIR/C64/sdl_sym_no_pi_4-500_bmc64.vkm"
+      sudo raspi-config nonint do_configure_keyboard no
+      ;;
+    "C64P - C64")
+      crudini --set "$VICERC" "$section" KeymapIndex 3
+      crudini --set "$VICERC" "$section" KeymapUserPosFile "$VICE_SHARE_DATA_DIR/C64/sdl_c64p.vkm"
+      sudo raspi-config nonint do_configure_keyboard us
+      ;;
   esac
   sed -i 's/^\([A-Za-z0-9_]\+\) *= */\1=/' "$VICERC"
+  log_info "set_keyboard_layout: After crudini: $(cat "$VICERC")"
 }
 
 # Joyport helpers migrated from original monolithic script
