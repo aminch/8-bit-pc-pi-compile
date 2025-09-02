@@ -1,36 +1,47 @@
-
 # 8-bit PC Pi Compile
 
-This project **8-bit PC Pi Compile** is a set of makefiles to enable the installation of Vice the Commodore 64 emulator and Atari800 the Atari 8-bit PC emulator on Raspberry Pi OS Lite (64-bit). In addition it installs a `menu` that allow easy switching of the default emulator, easy configuration the main features of the emulators and Pi OS Lite.
+This project **8-bit PC Pi Compile** is a Makefile to enable the installation of Vice the Commodore 64 emulator and Atari800 the Atari 8-bit PC emulator on Raspberry Pi OS Lite (64-bit). 
 
-It is designed to run best on a Pi500 or Pi400, but of course will work on any Pi 4 or Pi 5.
+In addition it installs a `menu` that allow easy switching of the default emulator, and easy configuration the main features of the emulators and Pi OS Lite.
 
-The goal of the project is to try and keep the feel of these old 8-bit computers by stripping back everything from the OS (hence the use of Pi OS Lite) and booting directly into the emulator. If you use a Pi400 or Pi500 it's as close as possible to to the feel of these old computers with everything in the keyboard!
+The goal of the project is to try and keep the feel of these old 8-bit computers by stripping back everything from the OS (hence the use of Pi OS Lite) and booting directly into the emulator.
 
-## Emulator default and additional settings
+## Hardware
 
-### Vice (Commodore 64)
+This project was designed for one of two hardware setups, but given it's based on PiOS Lite (64-bit) it will run on any Raspberry Pi 4 or 5. 
 
-### Atari800
+### Setup #1
 
-### Use of original joysticks
+Modern hardware with an adapter to run original joysticks.
 
-Original joysticks can be connected to the Raspberry Pi GPIO pins using this adapter: https://github.com/aminch/bmc-joy-pcb
+ * Pi 500 (recommended) or Pi 400
+ * [BMC Joystick Adapter](https://github.com/aminch/bmc-joy-pcb)
+ * [Raspberry Pi 27W USB-C Power Supply](https://www.raspberrypi.com/products/27w-power-supply/)
 
-All the settings for both the Vice and Atari800 to use the adapter and real joysticks are pre-configured and installed with this makefile. The `menu` also allows for easy change of configurations.
+### Setup #2
 
-### Installing in original C64 case
+Complete old school look and feel with original C64 case and keyboard.  
 
-It's possible to use a Pi 5B+ in combination with https://github.com/aminch/bmc64-pcb (at least v 2.0.5) installed in an original C64 case, and keyboard.
+ * Pi 5 (recommended) or Pi 4B
+ * [BMC PCB](https://github.com/aminch/bmc-pcb) (at least v 2.0.5)
+ * Original C64 case (C64C or breadbin)
+ * Original C64 keyboard (or new equivalent)
+ * [Raspberry Pi 27W USB-C Power Supply](https://www.raspberrypi.com/products/27w-power-supply/)
 
-Details to come...
+ **Note:** You CANNOT run [BMC64](https://accentual.com/bmc64/), on a Pi 4B or Pi 5. To run BMC64 you need to use a Pi 3B+, which will also work in the above old school hardware.
 
-## Getting Started: Flashing Raspberry Pi OS Lite (64-bit)
+## Software
+
+By using this Makefile both the Vice C64 and Atari800 emulators will be installed and automatically configured to support both of the hardware setups listed above.
+
+### Creating Pi OS Lite Installation
+
+First you need to get a fresh MicroSD card and set it up with an installation of Pi OS Lite (64-bit)
 
 1. **Download and Install Raspberry Pi Imager**  
-   Get it from [https://www.raspberrypi.com/software/](https://www.raspberrypi.com/software/).
+   Get it from [Raspberry Pi Imager](https://www.raspberrypi.com/software/).
 
-2. **Burn Raspberry Pi OS Lite to SD Card**  
+2. **Write the Raspberry Pi OS Lite (64-bit) image to a MicroSD Card**  
    - Open Raspberry Pi Imager.
    - Choose "Raspberry Pi OS Lite (64-bit)" as the operating system.
    - Select your SD card as the storage device.
@@ -49,9 +60,9 @@ Details to come...
    - Click "Write" to burn the image and apply your settings.
    - When finished, insert the SD card into your Raspberry Pi and power it on.
 
----
+### First Boot: Installation of Emulators
 
-## First Boot: Logging In and Cloning This Repository
+Steps to install the emulators, patches and configuration files.
 
 1. **Log in to your Raspberry Pi**  
    - Use the username `pi` and the password you set in the Imager.
@@ -61,105 +72,47 @@ Details to come...
    ```bash
    sudo apt-get install -y git
    ```
-
-
 3. **Clone this repository:**
-  ```bash
-  git clone https://github.com/aminch/8-bit-pc-pi-compile.git
-  cd 8-bit-pc-pi-compile
-  ```
+    ```bash
+    git clone https://github.com/aminch/8-bit-pc-pi-compile.git
+    cd 8-bit-pc-pi-compile
+    ```
+4. **Build and install everything**
+    ```bash
+    make all
+    ```
 
+If everything went well you will be presented with a message saying that the installation is complete and you need to reboot to finalise the setup.
 
-You are now ready to use the Makefile and scripts as described below.
+## 8-bit PC Menu and Usage
 
----
+### What the Makefile Installs and Sets Up
 
+After installation the following components are installed and configured:
 
-# 8-bit Emulator Compilation and Installation
+- **VICE (Commodore 64 Emulator):** Downloaded, built, and installed with default configuration for Pi hardware.
+- **Atari800 (Atari 8-bit Emulator):** Downloaded, built, and installed with default configuration for Pi hardware.
+- **8-bit PC Menu System:** A simple shell `menu` is installed to allow easy switching between emulators and configuration options, makes it easier that from within the emulators themselves. 
+- **Samba File Sharing:** A share is created at `~/share` with `disks` and `roms` subfolders for easy file management from other computers.
+- **Auto-login and Auto-start:** The system is configured to auto-login and auto-start the selected emulator on boot.
+- **Useful Tools:** Midnight Commander (`mc`) and other utilities are installed for file management and system maintenance.
 
-This Makefile and supporting scripts automate downloading, building, and installing 8-bit emulators (including VICE, and Atari800) on Raspberry Pi OS (Lite or Desktop). It also provides additional setup for Samba file sharing, auto-login, auto-starting emulators, and hiding the rainbow splash screen.
+### What Can Be Changed in the "menu" Install
 
-## Prerequisites
+The installed menu system is launched with the `menu`  command and provides options to:
 
-- Raspberry Pi OS (Lite or Desktop)
-- `sudo` privileges
-- Internet connection
+- **Switch Default Emulator:** Choose between VICE (C64) and Atari800 as the default emulator to launch on boot.
+- **Configure Emulator Settings:** Adjust key mappings, joystick settings, display options, and other emulator-specific features.
+- **System Settings:** Change WiFi configuration, hostname, and other Pi OS Lite settings using the official raspi-config script.
+- **Updates:** Update the menu script or Pi OS Lite itself.
+- **Reboot or Shutdown:** Easily reboot or power off the system from the menu.
 
+The menu is designed to be simple and accessible from the console, making it easy to customize your 8-bit PC experience without needing to edit configuration files manually.
 
-## Usage
+#### WiFi
 
-Open a terminal in this directory and run:
+WiFi should have been configured in Raspberry Pi Imager but if you need to change anything you can launch raspi-config from the `menu`.
 
-```bash
-make all
-```
-
-Reply (Y)es to any install questions if they appear.
-
-This will:
-- Install all build dependencies
-- Download and extract VICE (and other supported emulators/utilities as available)
-- Build and install VICE
-- Set up a Samba share with subfolders for disks and roms
-- Enable auto-login and auto-start of VICE (or other emulators)
-- Hide the rainbow splash screen
-- Install useful tools (Midnight Commander)
-
-## Available Targets
-
-- `make deps`  
-  Install all required system packages for building VICE.
-
-- `make download`  
-  Download the VICE source tarball.
-
-- `make extract`  
-  Extract the downloaded VICE source.
-
-- `make autogen`  
-  Run the VICE autogen script.
-
-- `make configure`  
-  Configure the VICE build.
-
-- `make build`  
-  Build VICE using all available CPU cores.
-
-- `make install`  
-  Install VICE to your home directory.
-
-- `make add_config_txt_changes`  
-  Add `disable_splash=1` to `/boot/config.txt` or `/boot/firmware/config.txt` to hide the Raspberry Pi rainbow splash screen on boot. The Makefile will check for `/boot/firmware/config.txt` first and use it if present.
-
-- `make samba_setup`  
-  Install Samba, create a share at `~/share` with `disks` and `roms` subfolders, and configure permissions.  
-  Access from another computer using:  
-  `smb://<your-pi-ip-address>/8bitpc`
-
-- `make autologin_pi`  
-  Enable auto-login for the current user (requires Raspberry Pi OS Desktop with LightDM).
-
-- `make autostart_x64sc`  
-  Add a command to your `~/.bash_profile` so that `x64sc` launches automatically when you log in on the console (not via SSH).
-
-- `make setup_vice_config`  
-  Copy the provided `sdl-vicerc` file into `~/.config/vice/` to set up default VICE settings for your user.  
-  This ensures VICE starts with your preferred configuration out of the box.
-
-- `make tools`  
-  Install useful tools for working on the Pi, starting with Midnight Commander (`mc`), a text-based file manager.  
-  Run `mc` in the terminal to launch it.
-
-- `make clean`  
-  Remove all downloaded and built files.
-
-## Notes
-
-- The Samba share is created at `~/share` with `disks` and `roms` subfolders for easy file management.
-- The `autostart_x64sc` target only affects local console logins, not SSH sessions.
-- For headless (Lite) setups, the Makefile is designed to work without a desktop environment.
-- If you want VICE to start automatically for all users or in other scenarios, consider using a systemd user service or customizing `/etc/profile`.
-- The rainbow splash screen will be hidden on next boot after running `make add_config_txt_changes`.
-- To run VICE manually from the console run `~/vice-3.9/bin/x64sc` or simply power cycle the Pi400/500.
+From the raspi-config menu, select "System Options" > "Wireless LAN" to set or update your WiFi details. This is the recommended way to troubleshoot or change network settings on Pi OS Lite.
 
 ---
