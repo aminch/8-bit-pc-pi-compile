@@ -90,8 +90,8 @@ If everything went well you will be presented with a message saying that the ins
 
 After installation the following components are installed and configured:
 
-- **VICE (Commodore 64 Emulator):** Downloaded, built, and installed with default configuration for Pi hardware.
-- **Atari800 (Atari 8-bit Emulator):** Downloaded, built, and installed with default configuration for Pi hardware.
+- **VICE (Commodore 64 Emulator):** Downloaded, built, and installed with configuration files to support Pi 500 / Pi 400 / C64P and BMC joystick adapter used in the hardware setup listed above.
+- **Atari800 (Atari 8-bit Emulator):** Downloaded, built, and installed with configuration files to support Pi 500 / Pi 400 / C64P and BMC joystick adapter used in the hardware setup listed above.
 - **8-bit PC Menu System:** A simple shell `menu` is installed to allow easy switching between emulators and configuration options, makes it easier that from within the emulators themselves. 
 - **Samba File Sharing:** A share is created at `~/share` with `disks` and `roms` subfolders for easy file management from other computers.
 - **Auto-login and Auto-start:** The system is configured to auto-login and auto-start the selected emulator on boot.
