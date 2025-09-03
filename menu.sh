@@ -31,6 +31,7 @@ do_updates() {
     3)
       return 0 ;;
   esac
+
 }
 
 main_menu() {
@@ -212,3 +213,6 @@ mount_usb_menu() {
     fi
   fi
 }
+
+# Start the main menu when the script is run
+main_menu
