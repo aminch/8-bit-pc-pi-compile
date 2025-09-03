@@ -175,7 +175,7 @@ tools_menu() {
       7) set_video_mode "1920x1080M@60" ;;
       8) set_video_mode "1280x720M@60" ;;
       9)
-        # Use neofetch for system info, but always append WiFi info
+        # Use neofetch for system info, always append WiFi, IP, hostname, and share info
         if command -v neofetch >/dev/null 2>&1; then
           neofetch --stdout > /tmp/sysinfo.txt
         else
@@ -188,16 +188,17 @@ tools_menu() {
         fi
         {
           echo ""
-          echo "WiFi Info:"
+          echo "Network Info:"
           ssid=$(iwgetid -r 2>/dev/null)
-          if [ -n "$ssid" ]; then
-            echo "SSID: $ssid"
-            iwconfig 2>/dev/null | grep -i --color=never 'ESSID\|Signal'
-          else
-            echo "No WiFi connection detected."
-          fi
+          ip_addr=$(hostname -I | awk '{print $1}')
+          hostname=$(hostname)
+          share_path="smb://$hostname/SHARE"
+          echo "WiFi SSID: ${ssid:-Not connected}"
+          echo "IP Address: ${ip_addr:-Unavailable}"
+          echo "Hostname: $hostname"
+          echo "Samba Share: $share_path"
         } >> /tmp/sysinfo.txt
-        whiptail --title "System Info" --scrolltext --textbox /tmp/sysinfo.txt 22 70
+        whiptail --title "System Info" --scrolltext --textbox /tmp/sysinfo.txt 30 80
         ;;
       10) return 0 ;;
     esac
