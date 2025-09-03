@@ -96,6 +96,7 @@ After installation the following components are installed and configured:
 - **Samba File Sharing:** A share is created at `~/share` with `disks` and `roms` subfolders for easy file management from other computers.
 - **Auto-login and Auto-start:** The system is configured to auto-login and auto-start the selected emulator on boot.
 - **Useful Tools:** Midnight Commander (`mc`) and other utilities are installed for file management and system maintenance.
+- **USB Mount Menu:** The menu system includes a USB mount/unmount utility. When you select "Mount USB Drive" from the Tools & Utilities menu, it will automatically detect unmounted USB partitions (and disks without partition tables) whose parent device is USB. You can then select a device to mount at `/media/usb`. If the drive is already mounted, the menu will offer to unmount it. This makes it easy to access USB sticks for file transfer or backup without needing manual mount commands.
 
 ### What Can Be Changed in the "menu" Install
 
