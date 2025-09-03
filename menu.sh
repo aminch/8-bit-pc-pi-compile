@@ -175,7 +175,7 @@ tools_menu() {
       7) set_video_mode "1920x1080M@60" ;;
       8) set_video_mode "1280x720M@60" ;;
       9)
-        # Show system info using neofetch if available, else fallback
+        # Use neofetch for system info, but always append WiFi info
         if command -v neofetch >/dev/null 2>&1; then
           neofetch --stdout > /tmp/sysinfo.txt
         else
@@ -184,9 +184,19 @@ tools_menu() {
             echo; echo "Uptime:"; uptime
             echo; echo "Memory:"; free -h
             echo; echo "Disk:"; df -h /
-            echo; echo "WiFi:"; iwgetid -r 2>/dev/null && iwconfig 2>/dev/null | grep -i --color=never 'ESSID\|Signal'
           } > /tmp/sysinfo.txt
         fi
+        {
+          echo ""
+          echo "WiFi Info:"
+          ssid=$(iwgetid -r 2>/dev/null)
+          if [ -n "$ssid" ]; then
+            echo "SSID: $ssid"
+            iwconfig 2>/dev/null | grep -i --color=never 'ESSID\|Signal'
+          else
+            echo "No WiFi connection detected."
+          fi
+        } >> /tmp/sysinfo.txt
         whiptail --title "System Info" --scrolltext --textbox /tmp/sysinfo.txt 22 70
         ;;
       10) return 0 ;;
