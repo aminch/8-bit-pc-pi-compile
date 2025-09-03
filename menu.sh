@@ -183,21 +183,30 @@ mount_usb_menu() {
   log_info "mount_usb_menu: scanning for unmounted USB partitions"
   usb_partitions=$(lsblk -o NAME,TRAN,TYPE,MOUNTPOINT -nr | awk '$2=="usb" && $3=="part" && $4=="" {print "/dev/"$1}')
   log_info "mount_usb_menu: found partitions: $usb_partitions"
-  if [ -z "$usb_partitions" ]; then
-    log_warn "mount_usb_menu: No unmounted USB partitions detected"
-    msg "No unmounted USB partitions detected." 8 50
-    return 0
+  if [ -n "$usb_partitions" ]; then
+    device_list=()
+    for part in $usb_partitions; do
+      device_list+=("$part" "USB partition")
+    done
+  else
+    log_info "mount_usb_menu: no unmounted partitions, checking for unmounted USB disks"
+    usb_disks=$(lsblk -o NAME,TRAN,TYPE,MOUNTPOINT -nr | awk '$2=="usb" && $3=="disk" && $4=="" {print "/dev/"$1}')
+    log_info "mount_usb_menu: found disks: $usb_disks"
+    if [ -z "$usb_disks" ]; then
+      log_warn "mount_usb_menu: No unmounted USB partitions or disks detected"
+      msg "No unmounted USB partitions or disks detected." 8 50
+      return 0
+    fi
+    device_list=()
+    for disk in $usb_disks; do
+      device_list+=("$disk" "USB disk (no partition table)")
+    done
   fi
 
-  partition_list=()
-  for part in $usb_partitions; do
-    partition_list+=("$part" "USB partition")
-  done
-
-  MOUNT_CHOICE=$(whiptail --title "Mount USB Partition" --backtitle "$BACKTITLE" \
+  MOUNT_CHOICE=$(whiptail --title "Mount USB Device" --backtitle "$BACKTITLE" \
     --ok-button "Mount" --cancel-button "Back" \
-    --menu "Select a USB partition to mount:" 15 60 6 \
-    "${partition_list[@]}" 3>&1 1>&2 2>&3) || { log_info "mount_usb_menu: User cancelled USB mount menu"; return 0; }
+    --menu "Select a USB device to mount:" 15 60 6 \
+    "${device_list[@]}" 3>&1 1>&2 2>&3) || { log_info "mount_usb_menu: User cancelled USB mount menu"; return 0; }
 
   if [ -n "$MOUNT_CHOICE" ]; then
     mount_point="/media/usb"
