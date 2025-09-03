@@ -136,29 +136,75 @@ set_video_mode() {
 
 tools_menu() {
   while true; do
-    local TCHOICE
+    local TCHOICE usb_mounted usb_menu_label
+    usb_mounted=$(mount | grep -q 'on /media/usb ' && echo "yes" || echo "no")
+    if [ "$usb_mounted" = "yes" ]; then
+      usb_menu_label="Unmount USB Drive"
+    else
+      usb_menu_label="Mount USB Drive"
+    fi
+
     TCHOICE=$(whiptail --title "Tools & Utilities" --backtitle "$BACKTITLE" \
       --ok-button "Select" --cancel-button "Back" \
       --menu "Utilities:" 20 70 10 \
       "1" "Launch Midnight Commander" \
-      "2" "Start Samba (Windows file sharing)" \
-      "3" "Stop Samba (Windows file sharing)" \
-      "4" "Launch raspi-config" \
-      "5" "Set Pi to auto-login (console)" \
-      "6" "Set video mode 1080p" \
-      "7" "Set video mode 720p" \
-      "8" "Return to main menu" 3>&1 1>&2 2>&3) || return 0
+      "2" "$usb_menu_label" \
+      "3" "Start Samba (Windows file sharing)" \
+      "4" "Stop Samba (Windows file sharing)" \
+      "5" "Launch raspi-config" \
+      "6" "Set Pi to auto-login (console)" \
+      "7" "Set video mode 1080p" \
+      "8" "Set video mode 720p" \
+      "9" "Return to main menu" 3>&1 1>&2 2>&3) || return 0
+
     case $TCHOICE in
       1) mc ;;
-      2) sudo systemctl start smbd; msg "Samba started." 8 40 ;;
-      3) sudo systemctl stop smbd; msg "Samba stopped." 8 40 ;;
-      4) sudo raspi-config ;;
-      5) make -C "$BASE_DIR" autologin_pi; msg "Auto-login setup complete." 8 50 ;;
-      6) set_video_mode "1920x1080M@60" ;;
-      7) set_video_mode "1280x720M@60" ;;
-      8) return 0 ;;
+      2)
+        if [ "$usb_mounted" = "yes" ]; then
+          sudo umount /media/usb && msg "USB drive unmounted." 8 40 || msg "Failed to unmount USB drive." 8 40
+        else
+          mount_usb_menu
+        fi
+        ;;
+      3) sudo systemctl start smbd; msg "Samba started." 8 40 ;;
+      4) sudo systemctl stop smbd; msg "Samba stopped." 8 40 ;;
+      5) sudo raspi-config ;;
+      6) make -C "$BASE_DIR" autologin_pi; msg "Auto-login setup complete." 8 50 ;;
+      7) set_video_mode "1920x1080M@60" ;;
+      8) set_video_mode "1280x720M@60" ;;
+      9) return 0 ;;
     esac
   done
+}
+
+mount_usb_menu() {
+  local usb_devices device_list device mount_point MOUNT_CHOICE
+  # List block devices that are removable and not mounted
+  usb_devices=$(lsblk -o NAME,TRAN,MOUNTPOINT -nr | awk '$2=="usb" && $3=="" {print "/dev/"$1}')
+  if [ -z "$usb_devices" ]; then
+    msg "No unmounted USB drives detected." 8 50
+    return 0
+  fi
+
+  device_list=()
+  for device in $usb_devices; do
+    device_list+=("$device" "USB device")
+  done
+
+  MOUNT_CHOICE=$(whiptail --title "Mount USB Drive" --backtitle "$BACKTITLE" \
+    --ok-button "Mount" --cancel-button "Back" \
+    --menu "Select a USB device to mount:" 15 60 6 \
+    "${device_list[@]}" 3>&1 1>&2 2>&3) || return 0
+
+  if [ -n "$MOUNT_CHOICE" ]; then
+    mount_point="/media/usb"
+    sudo mkdir -p "$mount_point"
+    if sudo mount "$MOUNT_CHOICE" "$mount_point"; then
+      msg "Mounted $MOUNT_CHOICE at $mount_point" 8 50
+    else
+      msg "Failed to mount $MOUNT_CHOICE" 8 50
+    fi
+  fi
 }
 
 main_menu
