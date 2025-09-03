@@ -179,9 +179,11 @@ tools_menu() {
 
 mount_usb_menu() {
   local usb_devices device_list device mount_point MOUNT_CHOICE
-  # List block devices that are removable and not mounted
+  log_info "mount_usb_menu: scanning for unmounted USB devices"
   usb_devices=$(lsblk -o NAME,TRAN,MOUNTPOINT -nr | awk '$2=="usb" && $3=="" {print "/dev/"$1}')
+  log_info "mount_usb_menu: found devices: $usb_devices"
   if [ -z "$usb_devices" ]; then
+    log_warn "mount_usb_menu: No unmounted USB drives detected"
     msg "No unmounted USB drives detected." 8 50
     return 0
   fi
@@ -194,17 +196,16 @@ mount_usb_menu() {
   MOUNT_CHOICE=$(whiptail --title "Mount USB Drive" --backtitle "$BACKTITLE" \
     --ok-button "Mount" --cancel-button "Back" \
     --menu "Select a USB device to mount:" 15 60 6 \
-    "${device_list[@]}" 3>&1 1>&2 2>&3) || return 0
+    "${device_list[@]}" 3>&1 1>&2 2>&3) || { log_info "mount_usb_menu: User cancelled USB mount menu"; return 0; }
 
   if [ -n "$MOUNT_CHOICE" ]; then
     mount_point="/media/usb"
+    log_info "mount_usb_menu: Attempting to mount $MOUNT_CHOICE at $mount_point"
     sudo mkdir -p "$mount_point"
     if sudo mount "$MOUNT_CHOICE" "$mount_point"; then
+      log_info "mount_usb_menu: Successfully mounted $MOUNT_CHOICE at $mount_point"
       msg "Mounted $MOUNT_CHOICE at $mount_point" 8 50
     else
-      msg "Failed to mount $MOUNT_CHOICE" 8 50
-    fi
-  fi
-}
-
-main_menu
+      log_error "mount_usb_menu: Failed to mount $MOUNT_CHOICE at $mount_point"
+      # Optionally log the output of dmesg or mount for more details
+      log_error "mount_usb_menu: mount output: $(sudo mount "$MOUNT_CHOICE" "$mount_point" 2
