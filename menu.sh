@@ -180,13 +180,28 @@ tools_menu() {
 
 mount_usb_menu() {
   local usb_devices device_list device mount_point MOUNT_CHOICE
-  log_info "mount_usb_menu: scanning for unmounted USB partitions"
-  usb_partitions=$(lsblk -o NAME,TRAN,TYPE,MOUNTPOINT -nr | awk '$2=="usb" && $3=="part" && $4=="" {print "/dev/"$1}')
+  log_info "mount_usb_menu: scanning for unmounted USB partitions whose parent disk is USB"
+  usb_partitions=$(lsblk -P -o NAME,TYPE,MOUNTPOINT,PKNAME,TRAN | awk '
+    {
+      for (i=1; i<=NF; i++) {
+        split($i, kv, "=");
+        kv[2] = gensub(/"/, "", "g", kv[2]);
+        fields[kv[1]] = kv[2];
+      }
+      if (fields["TYPE"] == "disk" && fields["TRAN"] == "usb") {
+        usb_disks[fields["NAME"]] = 1;
+      }
+      if (fields["TYPE"] == "part" && fields["MOUNTPOINT"] == "" && usb_disks[fields["PKNAME"]]) {
+        print fields["NAME"];
+      }
+      delete fields;
+    }
+  ')
   log_info "mount_usb_menu: found partitions: $usb_partitions"
   if [ -n "$usb_partitions" ]; then
     device_list=()
     for part in $usb_partitions; do
-      device_list+=("$part" "USB partition")
+      device_list+=("/dev/$part" "USB partition")
     done
   else
     log_info "mount_usb_menu: no unmounted partitions, checking for unmounted USB disks"
