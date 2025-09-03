@@ -16,7 +16,7 @@ endif
 VIDEO_SETTING := video=HDMI-A-1:1280x720M@60
 
 # Common dependencies (system + build)
-OS_DEPS = pulseaudio alsa-tools crudini exfat-fuse exfatprogs ntfs-3g
+OS_DEPS = pulseaudio alsa-tools crudini exfat-fuse exfatprogs ntfs-3g neofetch
 BUILD_DEPS = git build-essential autoconf automake byacc flex xa65 gawk texinfo \
 	 dos2unix libpulse-dev libasound2-dev libcurl4-openssl-dev
 

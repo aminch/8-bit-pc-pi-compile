@@ -147,7 +147,7 @@ tools_menu() {
 
     TCHOICE=$(whiptail --title "Tools & Utilities" --backtitle "$BACKTITLE" \
       --ok-button "Select" --cancel-button "Back" \
-      --menu "Utilities:" 20 70 10 \
+      --menu "Utilities:" 22 70 11 \
       "1" "Launch Midnight Commander" \
       "2" "$usb_menu_label" \
       "3" "Start Samba (Windows file sharing)" \
@@ -156,7 +156,8 @@ tools_menu() {
       "6" "Set Pi to auto-login (console)" \
       "7" "Set video mode 1080p" \
       "8" "Set video mode 720p" \
-      "9" "Return to main menu" 3>&1 1>&2 2>&3) || return 0
+      "9" "System Info" \
+      "10" "Return to main menu" 3>&1 1>&2 2>&3) || return 0
 
     case $TCHOICE in
       1) mc ;;
@@ -173,7 +174,22 @@ tools_menu() {
       6) make -C "$BASE_DIR" autologin_pi; msg "Auto-login setup complete." 8 50 ;;
       7) set_video_mode "1920x1080M@60" ;;
       8) set_video_mode "1280x720M@60" ;;
-      9) return 0 ;;
+      9)
+        # Show system info using neofetch if available, else fallback
+        if command -v neofetch >/dev/null 2>&1; then
+          neofetch --stdout > /tmp/sysinfo.txt
+        else
+          {
+            echo "System:"; uname -a
+            echo; echo "Uptime:"; uptime
+            echo; echo "Memory:"; free -h
+            echo; echo "Disk:"; df -h /
+            echo; echo "WiFi:"; iwgetid -r 2>/dev/null && iwconfig 2>/dev/null | grep -i --color=never 'ESSID\|Signal'
+          } > /tmp/sysinfo.txt
+        fi
+        whiptail --title "System Info" --scrolltext --textbox /tmp/sysinfo.txt 22 70
+        ;;
+      10) return 0 ;;
     esac
   done
 }
