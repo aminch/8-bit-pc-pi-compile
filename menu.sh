@@ -207,5 +207,8 @@ mount_usb_menu() {
       msg "Mounted $MOUNT_CHOICE at $mount_point" 8 50
     else
       log_error "mount_usb_menu: Failed to mount $MOUNT_CHOICE at $mount_point"
-      # Optionally log the output of dmesg or mount for more details
-      log_error "mount_usb_menu: mount output: $(sudo mount "$MOUNT_CHOICE" "$mount_point" 2
+      log_error "mount_usb_menu: mount output: $(sudo mount "$MOUNT_CHOICE" "$mount_point" 2>&1)"
+      msg "Failed to mount $MOUNT_CHOICE" 8 50
+    fi
+  fi
+}
