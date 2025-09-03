@@ -8,9 +8,10 @@ ATARI_MENU_SCRIPT="$BASE_DIR/menus/atari.sh"
 
 do_updates() {
   local UPDATE_CHOICE
-  UPDATE_CHOICE=$(whiptail --title "Updates" --backtitle "$BACKTITLE" --menu "Choose update option:" 15 70 2 \
+  UPDATE_CHOICE=$(whiptail --title "Updates" --backtitle "$BACKTITLE" --menu "Choose update option:" 15 70 3 \
     "1" "Update scripts & Makefile (git pull)" \
-    "2" "Update Pi OS" 3>&1 1>&2 2>&3) || return
+    "2" "Update Pi OS" \
+    "3" "Return to main menu" 3>&1 1>&2 2>&3) || return
   case $UPDATE_CHOICE in
     1)
       if confirm "Pull latest changes from git?" 10 60; then
@@ -25,6 +26,9 @@ do_updates() {
       msg "Updating Pi OS. This may take a while..." 8 50
       sudo apt update && sudo apt upgrade -y
       msg "Pi OS update complete." 8 40 ;;
+    3)
+      return
+      ;;
   esac
 }
 
