@@ -23,7 +23,7 @@ Modern hardware with an adapter to run original joysticks.
 Complete old school look and feel with original C64 case and keyboard.  
 
  * Pi 5 (recommended) or Pi 4B
- * [BMC PCB](https://github.com/aminch/bmc-pcb) (at least v 2.0.5)
+ * [BMC PCB](https://github.com/aminch/bmc64-pcb) (at least v 2.0.5)
  * Original C64 case (C64C or breadbin)
  * Original C64 keyboard (or new equivalent)
  * [Raspberry Pi 27W USB-C Power Supply](https://www.raspberrypi.com/products/27w-power-supply/)
