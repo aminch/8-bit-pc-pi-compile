@@ -6,6 +6,8 @@ In addition it installs a `menu` that allow easy switching of the default emulat
 
 The goal of the project is to try and keep the feel of these old 8-bit computers by stripping back everything from the OS (hence the use of Pi OS Lite) and booting directly into the emulator.
 
+Details below, and some additional information on this accompanying [post](https://retro.minch.io/2025/09/8-bit-pc-pi-compile/).
+
 ## Hardware
 
 This project was designed for one of two hardware setups, but given it's based on PiOS Lite (64-bit) it will run on any Raspberry Pi 4 or 5. 
