@@ -16,7 +16,7 @@ endif
 VIDEO_SETTING := video=HDMI-A-1:1280x720M@60
 
 # Common dependencies (system + build)
-OS_DEPS = pulseaudio alsa-tools crudini exfat-fuse exfatprogs ntfs-3g fastfetch
+OS_DEPS = pulseaudio alsa-tools crudini exfat-fuse exfatprogs ntfs-3g
 BUILD_DEPS = git build-essential autoconf automake byacc flex xa65 gawk texinfo \
 	 dos2unix libpulse-dev libasound2-dev libcurl4-openssl-dev
 
@@ -28,6 +28,11 @@ help: ## Show this help
 deps: ## Install common system & build dependencies
 	sudo apt update -y && sudo apt upgrade -y
 	sudo apt-get install -y $(OS_DEPS) $(BUILD_DEPS)
+	# Try to install fastfetch, fallback to neofetch if not available
+	@if ! sudo apt-get install -y fastfetch 2>/dev/null; then \
+		echo "fastfetch not available, installing neofetch as fallback..."; \
+		sudo apt-get install -y neofetch; \
+	fi
 
 samba_setup: ## Install & configure Samba share at $(SHARE_DIR)
 	sudo apt-get install -y samba
