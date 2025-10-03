@@ -175,9 +175,11 @@ tools_menu() {
       7) set_video_mode "1920x1080M@60" ;;
       8) set_video_mode "1280x720M@60" ;;
       9)
-        # Use fastfetch for system info, always append WiFi, IP, hostname, and share info
-        if command -v fastfetch >/dev/null 2>&1; then
-          fastfetch > /tmp/sysinfo.txt
+        # Use neofetch first, then fastfetch, else direct system calls
+        if command -v neofetch >/dev/null 2>&1; then
+          neofetch --stdout > /tmp/sysinfo.txt
+        elif command -v fastfetch >/dev/null 2>&1; then
+          fastfetch --logo none > /tmp/sysinfo.txt
         else
           {
             echo "System:"; uname -a
