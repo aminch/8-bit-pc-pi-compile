@@ -200,7 +200,7 @@ tools_menu() {
           echo "Hostname: $hostname"
           echo "Samba Share: $share_path"
         } >> /tmp/sysinfo.txt
-        whiptail --title "System Info" --scrolltext --textbox /tmp/sysinfo.txt 31 80
+        whiptail --title "System Info" --scrolltext --textbox /tmp/sysinfo.txt 30 80
         ;;
       10) return 0 ;;
     esac
