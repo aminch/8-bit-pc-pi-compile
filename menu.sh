@@ -191,7 +191,7 @@ tools_menu() {
         {
           echo ""
           echo "Network Info:"
-          ssid=$(iwgetid -r 2>/dev/null)
+          ssid=$(iwgetid -r 2>/dev/null || true)
           ip_addr=$(hostname -I | awk '{print $1}')
           hostname=$(hostname)
           share_path="smb://$hostname/SHARE"
