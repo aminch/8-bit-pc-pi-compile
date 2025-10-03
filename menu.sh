@@ -179,7 +179,7 @@ tools_menu() {
         if command -v neofetch >/dev/null 2>&1; then
           neofetch --stdout > /tmp/sysinfo.txt
         elif command -v fastfetch >/dev/null 2>&1; then
-          fastfetch --logo none > /tmp/sysinfo.txt
+          fastfetch --pipe --logo none --structure os:host:kernel:uptime:packages:shell:display:terminal:cpu:gpu:memory:wifi:localip > /tmp/sysinfo.txt
         else
           {
             echo "System:"; uname -a
@@ -200,7 +200,7 @@ tools_menu() {
           echo "Hostname: $hostname"
           echo "Samba Share: $share_path"
         } >> /tmp/sysinfo.txt
-        whiptail --title "System Info" --scrolltext --textbox /tmp/sysinfo.txt 30 80
+        whiptail --title "System Info" --scrolltext --textbox /tmp/sysinfo.txt 31 80
         ;;
       10) return 0 ;;
     esac
